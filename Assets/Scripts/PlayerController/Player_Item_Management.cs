@@ -42,7 +42,8 @@ public class Player_Item_Management : MonoBehaviour
 
     private void Update()
     {
-        RetreiveItem();
+        if (_mainItem == null || _secondaryItem == null)
+            RetreiveItem();
 
         if (Input.GetKeyDown(KeyCode.Q))
         {

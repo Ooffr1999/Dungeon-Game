@@ -31,6 +31,8 @@ public class Player_Movement : MonoBehaviour
 
         stairs = GameObject.FindGameObjectWithTag("Stairs");
         cam = Camera.main;
+
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Update()
@@ -65,11 +67,13 @@ public class Player_Movement : MonoBehaviour
             _staminaBar.UpdateBackBar((int)currentStamina);
         }
 
+        transform.eulerAngles += Vector3.up * Input.GetAxis("Mouse X");
+
         if (Input.GetKeyDown(KeyCode.E))
             ProceedToNextLevel();
 
         if (_canMove)
-        controller.Move((transform.right + transform.forward) * moveX + (transform.forward - transform.right) * moveZ);
+            controller.Move(transform.forward * moveZ + transform.right * moveX);
     }
 
     void ProceedToNextLevel()
