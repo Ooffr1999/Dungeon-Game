@@ -31,6 +31,8 @@ public class Player_Item_Management : MonoBehaviour
     GameObject itemSlot_Armor;
     GameObject itemSlot_Utility;
 
+    WeaponSystem _weaponSystem;
+
     private void Start()
     {
         //Get slots
@@ -38,6 +40,8 @@ public class Player_Item_Management : MonoBehaviour
         itemSlot_Secondary = itemHolder.transform.GetChild(1).gameObject;
         itemSlot_Armor = itemHolder.transform.GetChild(2).gameObject;
         itemSlot_Utility = itemHolder.transform.GetChild(3).gameObject;
+
+        _weaponSystem = GetComponent<WeaponSystem>();
     }
 
     private void Update()
@@ -53,7 +57,12 @@ public class Player_Item_Management : MonoBehaviour
                 InitDropItem(1);
 
             UnequipHands();
-        }   
+        }
+
+        if (Input.GetMouseButtonDown(0) && _mainItem != null)
+            _weaponSystem.ApplyEffect(_mainItem.baseEffectIndex);
+        if (Input.GetMouseButtonDown(1) && _secondaryItem != null)
+            _weaponSystem.ApplyEffect(_secondaryItem.baseEffectIndex);
     }
 
     void RetreiveItem()
@@ -153,6 +162,7 @@ public class Player_Item_Management : MonoBehaviour
         GameObject itemToDrop = _dropItemTemplate;
 
         itemToDrop.GetComponent<Pickup>().item = item;
+
         Instantiate(itemToDrop, transform.position, transform.rotation);
     }
 

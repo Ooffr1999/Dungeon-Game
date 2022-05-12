@@ -14,4 +14,8 @@ public class Item : ScriptableObject
     public Mesh model;
     public Material model_Material;
 
+    [Header("Stats")]
+    public int baseDamage;
+    public float baseSpeedModifier;
+    public int baseEffectIndex;
 }

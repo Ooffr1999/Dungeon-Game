@@ -31,22 +31,18 @@ public class Player_Movement : MonoBehaviour
 
         stairs = GameObject.FindGameObjectWithTag("Stairs");
         cam = Camera.main;
-
-        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Update()
     {
-        float moveX = Input.GetAxisRaw("Horizontal") * _moveSpeed * Time.deltaTime;
-        float moveZ = Input.GetAxisRaw("Vertical") * _moveSpeed * Time.deltaTime;
+        float move = Input.GetAxis("Jump") * _moveSpeed * Time.deltaTime;
 
         //Apply Running and appropriate stamina management
         if (Input.GetKey(KeyCode.LeftShift) && currentStamina > 0)
         {
-            moveX *= _runSpeedModifier;
-            moveZ *= _runSpeedModifier;
+            move *= _runSpeedModifier;
 
-            if (moveX != 0 || moveZ != 0)
+            if (move != 0)
             {
                 currentStamina -= Time.deltaTime * staminaDrainRateModifier;
                 _staminaBar.UpdateFrontBar((int)currentStamina);
@@ -67,18 +63,37 @@ public class Player_Movement : MonoBehaviour
             _staminaBar.UpdateBackBar((int)currentStamina);
         }
 
-        transform.eulerAngles += Vector3.up * Input.GetAxis("Mouse X");
-
         if (Input.GetKeyDown(KeyCode.E))
             ProceedToNextLevel();
 
         if (_canMove)
-            controller.Move(transform.forward * moveZ + transform.right * moveX);
+            controller.Move(transform.forward * move);
+
+        transform.eulerAngles = new Vector3(0, GetMouseAngle() - 45, 0);
+
+        controller.Move(transform.up * -2);
     }
 
     void ProceedToNextLevel()
     {
         if (Vector3.Distance(transform.position, stairs.transform.position) < 3)
             GameObject.Find("LevelGen").GetComponent<LevelGen>().MakeLevel();
+    }
+
+    float GetMouseAngle()
+    {
+        Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2 + 80);
+
+        Vector2 mousePos = (Vector2)Input.mousePosition - screenCenter;
+
+        float angle = Mathf.Atan2(mousePos.x, mousePos.y) * Mathf.Rad2Deg;
+        
+        if (mousePos.x < 0)
+        {
+            float dif = Mathf.Abs(180 - Mathf.Abs(angle));
+            angle = 180 + dif;
+        }
+
+        return angle;
     }
 }
