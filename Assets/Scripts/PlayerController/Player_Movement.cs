@@ -16,6 +16,9 @@ public class Player_Movement : MonoBehaviour
     public float staminaGainModifier;
     public float staminaDrainRateModifier;
 
+    [Header("Animations")]
+    public Animator _animController;
+
     [Space(10)]
     public CharacterController controller;
     [SerializeField]
@@ -35,10 +38,29 @@ public class Player_Movement : MonoBehaviour
 
     private void Update()
     {
-        float move = Input.GetAxis("Jump") * _moveSpeed * Time.deltaTime;
+        ApplyMovement();
+        
+        //Apply Gravity
+        controller.Move(transform.up * -2);
+
+        //Move on to next level
+        if (Input.GetKeyDown(KeyCode.E))
+            ProceedToNextLevel();
+    }
+
+    void ProceedToNextLevel()
+    {
+        if (Vector3.Distance(transform.position, stairs.transform.position) < 3)
+            GameObject.Find("LevelGen").GetComponent<LevelGen>().MakeLevel();
+    }
+
+    void ApplyMovement()
+    {
+        //Get movement value from Input
+        float move = Input.GetAxis("Walk") * _moveSpeed * Time.deltaTime;
 
         //Apply Running and appropriate stamina management
-        if (Input.GetKey(KeyCode.LeftShift) && currentStamina > 0)
+        if (Input.GetButton("Run") && currentStamina > 0)
         {
             move *= _runSpeedModifier;
 
@@ -47,6 +69,7 @@ public class Player_Movement : MonoBehaviour
                 currentStamina -= Time.deltaTime * staminaDrainRateModifier;
                 _staminaBar.UpdateFrontBar((int)currentStamina);
                 _staminaBar.UpdateBackBar((int)currentStamina);
+                _animController.SetBool("IsRunning", true);
             }
 
             else if (currentStamina <= maxStamina)
@@ -54,6 +77,7 @@ public class Player_Movement : MonoBehaviour
                 currentStamina += Time.deltaTime * staminaGainModifier;
                 _staminaBar.UpdateFrontBar((int)currentStamina);
                 _staminaBar.UpdateBackBar((int)currentStamina);
+                _animController.SetBool("IsRunning", false);
             }
         }
         else if (currentStamina <= maxStamina)
@@ -61,23 +85,21 @@ public class Player_Movement : MonoBehaviour
             currentStamina += Time.deltaTime * staminaGainModifier;
             _staminaBar.UpdateFrontBar((int)currentStamina);
             _staminaBar.UpdateBackBar((int)currentStamina);
+            _animController.SetBool("IsRunning", false);
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
-            ProceedToNextLevel();
+        //Rotate after mouse
+        if (move != 0)
+            transform.eulerAngles = new Vector3(0, GetMouseAngle() - 45, 0);
 
+        //Apply Movement
         if (_canMove)
             controller.Move(transform.forward * move);
 
-        transform.eulerAngles = new Vector3(0, GetMouseAngle() - 45, 0);
-
-        controller.Move(transform.up * -2);
-    }
-
-    void ProceedToNextLevel()
-    {
-        if (Vector3.Distance(transform.position, stairs.transform.position) < 3)
-            GameObject.Find("LevelGen").GetComponent<LevelGen>().MakeLevel();
+        //Animations/////
+        if (move > 0)
+            _animController.SetBool("IsWalking", true);
+        else _animController.SetBool("IsWalking", false);
     }
 
     float GetMouseAngle()

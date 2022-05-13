@@ -8,6 +8,9 @@ public class Player_Health : MonoBehaviour
     [HideInInspector]
     public int currentHealth;
 
+    [Header("Animations")]
+    public Animator _animController;
+
     [HideInInspector]
     public Player_Health _instance;
 
@@ -67,7 +70,7 @@ public class Player_Health : MonoBehaviour
         if (currentHealth <= 0)
         {
             currentHealth = 0;
-            //You ded
+            OnDeath();
         }    
     }
 
@@ -81,5 +84,18 @@ public class Player_Health : MonoBehaviour
         maxHealth = Mathf.FloorToInt(maxHealth * v);
 
         _healthBar.InitBar(currentHealth, maxHealth);
+    }
+
+    void OnDeath()
+    {
+        StartCoroutine(OnDeathEnum());
+    }
+
+    IEnumerator OnDeathEnum()
+    {
+        _animController.Play("Player_Anim_Die_1");
+        GetComponent<Player_Movement>().enabled = false;
+
+        yield return new WaitForSeconds(5);
     }
 }

@@ -1,3 +1,4 @@
+/*
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ using UnityEditor;
 [CustomEditor(typeof(LevelGen))]
 public class LevelGen_Editor : Editor
 {
+    
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -18,4 +20,4 @@ public class LevelGen_Editor : Editor
             _levelGen.GetNewSeed();
     }
 }
-
+*/
