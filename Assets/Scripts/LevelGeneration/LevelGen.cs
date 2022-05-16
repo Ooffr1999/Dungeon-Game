@@ -20,9 +20,22 @@ public class LevelGen : MonoBehaviour
     public GameObject stairs;
 
     [HideInInspector]
+    char[,] map;
+
+    [HideInInspector]
     public List<GameObject> _floorPool;
     [HideInInspector]
     public List<GameObject> _wallPool;
+
+    [HideInInspector]
+    public static LevelGen _instance;
+
+    private void Awake()
+    {
+        if (_instance != null)
+            Destroy(this.gameObject);
+        else _instance = this;
+    }
 
     private void Start()
     {
@@ -37,15 +50,15 @@ public class LevelGen : MonoBehaviour
             MakeLevel();
     }
 
-    public void GetNewSeed()
+    void GetNewSeed()
     {
         Random.InitState(System.Environment.TickCount);
         seed = Random.Range(-100000, 100000);
     }
 
-    public void DrawLevelLayout()
+    void DrawLevelLayout()
     {
-        char[,] map = MapGen.GetCatacombMap(size.x, size.y, seed);
+        map = MapGen.GetCatacombMap(size.x, size.y, seed);
 
         //transform.localScale = new Vector3(map.GetLength(0), map.GetLength(1), 1);
 
@@ -93,7 +106,7 @@ public class LevelGen : MonoBehaviour
         GetComponent<Renderer>().sharedMaterial.mainTexture = mapTex;
     }
 
-    public void GenerateLevel()
+    void GenerateLevel()
     {
         char[,] map = MapGen.GetCatacombMap(size.x, size.y, seed);
 
@@ -196,7 +209,7 @@ public class LevelGen : MonoBehaviour
         player.GetComponent<CharacterController>().enabled = true;
     }
 
-    public void InitPool()
+    void InitPool()
     {
         //Floor pool
         for (int i = 0; i < size.x * size.y; i++)
@@ -220,7 +233,7 @@ public class LevelGen : MonoBehaviour
         }
     }
 
-    public void ClearRoom()
+    void ClearRoom()
     {
         for (int i = 0; i < _floorPool.Count; i++)
         {
@@ -240,19 +253,6 @@ public class LevelGen : MonoBehaviour
         DrawLevelLayout();
         GenerateLevel();
         GetNewSeed();
-    }
-
-    public Vector3 getStartPosition(char[,] map)
-    {
-        for(int y = 0; y < map.GetLength(1); y++)
-            for(int x = 0; x < map.GetLength(0); x++)
-            {
-                if (map[x, y] == 'S')
-                    return new Vector3(x, 1, y);
-            }
-        
-            Debug.LogError("Found no Start Point");
-            return Vector3.zero;
     }
 
     float EvaluateForWallPlacement(char[,] map, int x, int y, int poolIndex)
@@ -436,5 +436,23 @@ public class LevelGen : MonoBehaviour
         }
 
         return index;
+    }
+    
+    public Vector3 getStartPosition(char[,] map)
+    {
+        for(int y = 0; y < map.GetLength(1); y++)
+            for(int x = 0; x < map.GetLength(0); x++)
+            {
+                if (map[x, y] == 'S')
+                    return new Vector3(x, 1, y);
+            }
+        
+            Debug.LogError("Found no Start Point");
+            return Vector3.zero;
+    }
+
+    public char[,] getMap()
+    {
+        return map;
     }
 }
