@@ -455,4 +455,14 @@ public class LevelGen : MonoBehaviour
     {
         return map;
     }
+
+    public char getMapSquareData(Vector2Int pos)
+    {
+        return map[pos.x, pos.y];
+    }
+
+    public char getMapSquareData(int x, int y)
+    {
+        return map[x, y];
+    }
 }
