@@ -9,17 +9,23 @@ public class Player_Item_Management : MonoBehaviour
     public LayerMask itemLayer;
 
     [Space(10)]
-    public Item _mainItem;
-    public Item _secondaryItem;
+    public GameObject _mainItem;
+    public GameObject _secondaryItem;
     public Item _armorItem;
     public Item _utilityItem;
 
     [Space(10)]
-    public GameObject itemHolder;
+    public Weapon _mainItemComponent;
+    public Weapon _secondaryItemComponent;
+
+    [Space(10)]
+    public Objects _mainItemData;
+    public Objects _secondaryItemData;
+
+    [Space(10)]
+    public GameObject iconHolder;
 
     [Space(5)]
-    public GameObject _rightHand;
-    public GameObject _leftHand;
     public GameObject _rightWeapon;
     public GameObject _leftWeapon;
 
@@ -31,102 +37,85 @@ public class Player_Item_Management : MonoBehaviour
     GameObject itemSlot_Armor;
     GameObject itemSlot_Utility;
 
-    WeaponSystem _weaponSystem;
+    public Animator _anim;
+    Player_InputAction input;
+
+    void Awake()
+    {
+        input = new Player_InputAction();
+
+        input.Player.MainAttack.started += ctx => _mainItemComponent.Attack();
+        input.Player.SecondaryAttack.started += ctx => _secondaryItemComponent.Attack();
+    }
 
     private void Start()
     {
         //Get slots
-        itemSlot_Main = itemHolder.transform.GetChild(0).gameObject;
-        itemSlot_Secondary = itemHolder.transform.GetChild(1).gameObject;
-        itemSlot_Armor = itemHolder.transform.GetChild(2).gameObject;
-        itemSlot_Utility = itemHolder.transform.GetChild(3).gameObject;
-
-        _weaponSystem = GetComponent<WeaponSystem>();
+        itemSlot_Main = iconHolder.transform.GetChild(0).gameObject;
+        itemSlot_Secondary = iconHolder.transform.GetChild(1).gameObject;
+        itemSlot_Armor = iconHolder.transform.GetChild(2).gameObject;
+        itemSlot_Utility = iconHolder.transform.GetChild(3).gameObject;
     }
 
-    private void Update()
+    public void RetreiveItem()
     {
-        if (_mainItem == null || _secondaryItem == null)
-            RetreiveItem();
+        if (_mainItem != null && _secondaryItem != null)
+            return;
 
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            if (_mainItem != null)
-                InitDropItem(0);
-            else if (_secondaryItem != null)
-                InitDropItem(1);
-
-            UnequipHands();
-        }
-
-        if (Input.GetMouseButtonDown(0) && _mainItem != null)
-            _weaponSystem.ApplyEffect(_mainItem.baseEffectIndex);
-        if (Input.GetMouseButtonDown(1) && _secondaryItem != null)
-            _weaponSystem.ApplyEffect(_secondaryItem.baseEffectIndex);
-    }
-
-    void RetreiveItem()
-    {
         if (Physics.CheckSphere(transform.position, itemSearchRadius, itemLayer))
         {
             //Find items and allow the closest one to be picked up
-            if (Input.GetKeyDown(KeyCode.E))
+            GameObject itemToPickUp = null;
+            GameObject[] itemsInRange = GameObject.FindGameObjectsWithTag("Items");
+
+            for (int i = 0; i < itemsInRange.Length; i++)
             {
-                GameObject[] itemsInRange = GameObject.FindGameObjectsWithTag("Items");
-
-                GameObject itemToPickUp = null;
-
-                for (int i = 0; i < itemsInRange.Length; i++)
+                if (itemToPickUp == null)
+                    itemToPickUp = itemsInRange[i].gameObject;
+                else
                 {
-
-                    if (itemToPickUp == null)
+                    if (Vector3.Distance(transform.position, itemToPickUp.transform.position) >
+                        Vector3.Distance(transform.position, itemsInRange[i].transform.position))
                         itemToPickUp = itemsInRange[i].gameObject;
-                    else
-                    {
-                        if (Vector3.Distance(transform.position, itemToPickUp.transform.position) >
-                            Vector3.Distance(transform.position, itemsInRange[i].transform.position))
-                            itemToPickUp = itemsInRange[i].gameObject;
-                    }
                 }
-
-                ApplyItem(itemToPickUp.GetComponent<Pickup>());
-                Destroy(itemToPickUp);
             }
+
+            ApplyItem(itemToPickUp.GetComponent<Pickup>());
+            Destroy(itemToPickUp);
         }
     }
 
     void ApplyItem(Pickup pickup)
     {
         //Put item in appropriate slot
-        switch(pickup.item._ItemType)
+        switch(pickup.item._slotType)
         {
-            case Item.itemType.Weapon:
-            
+            case Objects.Slot.weapon:
                 if (_mainItem == null)
                 {
-                    _mainItem = pickup.item;
-                    SetIcon();
-                    SetHands();
+                    _mainItem = Instantiate(pickup.item.createItem, _rightWeapon.transform.position, transform.rotation);
+                    _mainItemComponent = _mainItem.GetComponent<Weapon>();
+                    _mainItemComponent._isMainWeapon = true;
+                    _mainItemComponent._anim = _anim;
+                    _mainItemData = pickup.item;
+                    _mainItem.transform.parent = _rightWeapon.transform;
+                    _mainItem.transform.localEulerAngles = Vector3.zero;
                 }
 
                 else if (_secondaryItem == null)
                 {
-                    _secondaryItem = pickup.item;
-                    SetIcon();
-                    SetHands();
+                    _secondaryItem = Instantiate(pickup.item.createItem, _leftWeapon.transform.position, transform.rotation);
+                    
+                    _secondaryItemComponent = _secondaryItem.GetComponent<Weapon>();
+                    _secondaryItemComponent._anim = _anim;
+                    _secondaryItemData = pickup.item;
+                    _secondaryItem.transform.parent = _leftWeapon.transform;
+                    _secondaryItem.transform.localEulerAngles = Vector3.zero;
                 }
-
-                else if (_mainItem != null && _secondaryItem != null)
-                    Debug.Log("Full slots");
-                //make a system for choosing and discarding items
-
-                break;
-            case Item.itemType.Armor:
-                _armorItem = pickup.item;
+                
                 SetIcon();
                 break;
         }
-        
     }
 
     public void InitDropItem(int slot)
@@ -135,15 +124,17 @@ public class Player_Item_Management : MonoBehaviour
         {
             case 0:
                 //Drop main item
-                DropItem(_mainItem);
+                DropItem(_mainItemData);
                 RemoveIcon(itemSlot_Main);
+                _mainItemComponent = null;
                 _mainItem = null;
                 break;
 
             case 1:
                 //Drop secondary item
-                DropItem(_secondaryItem);
+                DropItem(_secondaryItemData);
                 RemoveIcon(itemSlot_Secondary);
+                _secondaryItemComponent = null;
                 _secondaryItem = null;
                 break;
 
@@ -157,48 +148,27 @@ public class Player_Item_Management : MonoBehaviour
         }
     }
 
-    void DropItem(Item item)
+    void DropItem(Objects item)
     {
         GameObject itemToDrop = _dropItemTemplate;
-
-        itemToDrop.GetComponent<Pickup>().item = item;
-
+        itemToDrop.GetComponent<Pickup>().item= item;
         Instantiate(itemToDrop, transform.position, transform.rotation);
     }
 
     void SetIcon()
     {
         if (_mainItem != null)
-            itemSlot_Main.transform.GetChild(0).GetComponent<Image>().sprite = _mainItem.icon;
+            itemSlot_Main.transform.GetChild(0).GetComponent<Image>().sprite = _mainItemData.icon;
         if (_secondaryItem != null)
-            itemSlot_Secondary.transform.GetChild(0).GetComponent<Image>().sprite = _secondaryItem.icon;
-        if (_armorItem != null)
-            itemSlot_Armor.transform.GetChild(0).GetComponent<Image>().sprite = _armorItem.icon;
-        if (_utilityItem != null)
-            itemSlot_Utility.transform.GetChild(0).GetComponent<Image>().sprite = _utilityItem.icon;
-
+            itemSlot_Secondary.transform.GetChild(0).GetComponent<Image>().sprite = _secondaryItemData.icon;
     }
 
     void RemoveIcon(GameObject itemSlot)
     {
-        Image armor_icon = itemSlot.transform.GetChild(0).GetComponent<Image>();
-        armor_icon.sprite = null;
+        Image icon = itemSlot.transform.GetChild(0).GetComponent<Image>();
+        icon.sprite = null;
     }
-
-    void SetHands()
-    {
-        if (_mainItem != null)
-        {
-            _rightWeapon.GetComponent<MeshFilter>().mesh = _mainItem.model;
-            _rightWeapon.GetComponent<MeshRenderer>().material = _mainItem.model_Material;
-        }
-        if (_secondaryItem != null)
-        {
-            _leftWeapon.GetComponent<MeshFilter>().mesh = _secondaryItem.model;
-            _leftWeapon.GetComponent<MeshRenderer>().material = _secondaryItem.model_Material;
-        }
-    }
-
+    
     void UnequipHands()
     {
         if (_mainItem == null)
@@ -212,5 +182,26 @@ public class Player_Item_Management : MonoBehaviour
             _leftWeapon.GetComponent<MeshFilter>().mesh = null;
             _leftWeapon.GetComponent<MeshRenderer>().material = null;
         }
+    }
+
+    public void EnableAttack()
+    {
+        _mainItemComponent._canDamage = true;
+        _secondaryItemComponent._canDamage = true;
+    }
+    public void DisableAttack()
+    {
+        _mainItemComponent._canDamage = false;
+        _secondaryItemComponent._canDamage = false;
+    }
+
+    private void OnEnable()
+    {
+        input.Player.Enable();
+    }
+
+    private void OnDisable()
+    {
+        input.Player.Disable();
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player_Movement : MonoBehaviour
 {
@@ -24,47 +25,56 @@ public class Player_Movement : MonoBehaviour
     [SerializeField]
     Player_HealthBar _staminaBar;
 
-    GameObject stairs;
     Camera cam;
+
+    float _move;
+    bool _run;
+    Vector2 _cursorPos;
+    
+    Player_InputAction input;
+
+    private void Awake()
+    {
+        input = new Player_InputAction();
+
+        input.Player.Move.started += ctx => _move = 1;
+        input.Player.Move.canceled += ctx => _move = 0;
+
+        input.Player.Run.started += ctx => _run = true;
+        input.Player.Run.canceled += ctx => _run = false;
+
+        input.Player.Look.performed += ctx => _cursorPos = ctx.ReadValue<Vector2>();
+    }
 
     private void Start()
     {
         _staminaBar.InitBar((int)currentStamina, maxStamina);
         currentStamina = maxStamina;
 
-        stairs = GameObject.FindGameObjectWithTag("Stairs");
         cam = Camera.main;
     }
 
     private void Update()
     {
         ApplyMovement();
-        
+
         //Apply Gravity
         controller.Move(transform.up * -2);
-
-        //Move on to next level
-        if (Input.GetKeyDown(KeyCode.E))
-            ProceedToNextLevel();
     }
-
-    void ProceedToNextLevel()
+    public void ReversePlayerMove ()
     {
-        if (Vector3.Distance(transform.position, stairs.transform.position) < 3)
-            GameObject.Find("LevelGen").GetComponent<LevelGen>().MakeLevel();
+        _canMove = !_canMove;
     }
-
-    void ApplyMovement()
+    private void ApplyMovement()
     {
-        //Get movement value from Input
-        float move = Input.GetAxis("Walk") * _moveSpeed * Time.deltaTime;
-
+        float step = _move * _moveSpeed * Time.deltaTime;
+        
         //Apply Running and appropriate stamina management
-        if (Input.GetButton("Run") && currentStamina > 0)
+        if (_run && currentStamina > 0)
         {
-            move *= _runSpeedModifier;
+            step *= _runSpeedModifier;
 
-            if (move != 0)
+            if (step != 0)
             {
                 currentStamina -= Time.deltaTime * staminaDrainRateModifier;
                 _staminaBar.UpdateFrontBar((int)currentStamina);
@@ -89,15 +99,15 @@ public class Player_Movement : MonoBehaviour
         }
 
         //Rotate after mouse
-        if (move != 0)
+        if (step != 0)
             transform.eulerAngles = new Vector3(0, GetMouseAngle() - 45, 0);
 
         //Apply Movement
         if (_canMove)
-            controller.Move(transform.forward * move);
+            controller.Move(transform.forward * step);
 
         //Animations/////
-        if (move > 0)
+        if (step > 0)
             _animController.SetBool("IsWalking", true);
         else _animController.SetBool("IsWalking", false);
     }
@@ -106,7 +116,7 @@ public class Player_Movement : MonoBehaviour
     {
         Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2 + 80);
 
-        Vector2 mousePos = (Vector2)Input.mousePosition - screenCenter;
+        Vector2 mousePos = _cursorPos - screenCenter;
 
         float angle = Mathf.Atan2(mousePos.x, mousePos.y) * Mathf.Rad2Deg;
         
@@ -117,5 +127,25 @@ public class Player_Movement : MonoBehaviour
         }
 
         return angle;
+    }
+    
+    void EnableMovement()
+    {
+        _canMove = true;
+    }
+
+    void DisableMovement()
+    {
+        _canMove = false;
+    }
+
+    private void OnEnable()
+    {
+        input.Player.Enable();
+    }
+
+    private void OnDisable()
+    {
+        input.Player.Disable();
     }
 }

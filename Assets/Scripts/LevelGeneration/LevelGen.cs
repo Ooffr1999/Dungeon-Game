@@ -30,6 +30,9 @@ public class LevelGen : MonoBehaviour
     [HideInInspector]
     public static LevelGen _instance;
 
+    Vector2Int startPos;
+    Vector2Int endPos;
+
     private void Awake()
     {
         if (_instance != null)
@@ -42,12 +45,6 @@ public class LevelGen : MonoBehaviour
         InitPool();
 
         MakeLevel();
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Y))
-            MakeLevel();
     }
 
     void GetNewSeed()
@@ -86,10 +83,12 @@ public class LevelGen : MonoBehaviour
 
                     case 'S':
                         mapTex.SetPixel(x, y, Color.white);
+                        startPos = new Vector2Int(x, y);
                         break;
 
                     case 'E':
                         mapTex.SetPixel(x, y, Color.black);
+                        endPos = new Vector2Int(x, y);
                         break;
 
                     default:
@@ -208,7 +207,6 @@ public class LevelGen : MonoBehaviour
         player.transform.position = getStartPosition(map) * _sizeModifier;
         player.GetComponent<CharacterController>().enabled = true;
     }
-
     void InitPool()
     {
         //Floor pool
@@ -232,7 +230,6 @@ public class LevelGen : MonoBehaviour
             wallPiece.SetActive(false);
         }
     }
-
     void ClearRoom()
     {
         for (int i = 0; i < _floorPool.Count; i++)
@@ -246,7 +243,6 @@ public class LevelGen : MonoBehaviour
             _wallPool[i].SetActive(false);
         }
     }
-
     public void MakeLevel()
     {
         ClearRoom();
@@ -254,7 +250,6 @@ public class LevelGen : MonoBehaviour
         GenerateLevel();
         GetNewSeed();
     }
-
     float EvaluateForWallPlacement(char[,] map, int x, int y, int poolIndex)
     {
         if (map[x, y] != '#')
@@ -437,7 +432,6 @@ public class LevelGen : MonoBehaviour
 
         return index;
     }
-    
     public Vector3 getStartPosition(char[,] map)
     {
         for(int y = 0; y < map.GetLength(1); y++)
@@ -450,10 +444,19 @@ public class LevelGen : MonoBehaviour
             Debug.LogError("Found no Start Point");
             return Vector3.zero;
     }
-
     public char[,] getMap()
     {
         return map;
+    }
+
+    public Vector2Int getMapStartPos()
+    {
+        return startPos;
+    }
+
+    public Vector2Int getMapEndPos()
+    {
+        return endPos;
     }
 
     public char getMapSquareData(Vector2Int pos)

@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class Pickup : MonoBehaviour
 {
-    public Item item;
+    public Objects item;
     public MeshFilter mesh;
     public MeshRenderer renderer;
 

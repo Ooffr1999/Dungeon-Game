@@ -12,7 +12,7 @@ public class Player_Health : MonoBehaviour
     public Animator _animController;
 
     [HideInInspector]
-    public Player_Health _instance;
+    public static Player_Health _instance;
 
     [SerializeField]
     Player_HealthBar _healthBar;
@@ -31,17 +31,6 @@ public class Player_Health : MonoBehaviour
 
         _healthBar = GetComponent<Player_HealthBar>();
         _healthBar.InitBar(currentHealth, maxHealth);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
-            GetHealth(10);
-        else if (Input.GetKeyDown(KeyCode.J))
-            LooseHealth(10);
-
-        else if (Input.GetKeyDown(KeyCode.I))
-            UpdateHealthByPercentage(50);
     }
 
     public void GetHealth(int healthReceived)
