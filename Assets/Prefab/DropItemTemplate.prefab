@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 935074930289908530}
   - component: {fileID: 935074930289908529}
   - component: {fileID: 935074930289908541}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DropItemTemplate
   m_TagString: Items
   m_Icon: {fileID: 0}
@@ -109,6 +109,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb198788665f31b4ba6b70f1e1003b49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 11400000, guid: 63a56fafd9517094591ed9987ced6d97, type: 2}
+  item: {fileID: 0}
   mesh: {fileID: 935074930289908531}
   renderer: {fileID: 935074930289908530}

@@ -4,26 +4,30 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : EnemyHealth
 {
     public float _MoveSpeed;
+    public LayerMask _obstacles;
 
     List<Points> openPoints = new List<Points>();
     List<Points> closedPoints = new List<Points>();
     List<Points> pathPoints = new List<Points>();
 
+    [HideInInspector]
     public LevelGen _levelGenerator;
 
     [HideInInspector]
     public bool isMoving;
 
+    Vector3 destination;
+    
     private void Start()
     {
         _levelGenerator = LevelGen._instance;
     }
 
     #region PathFinding
-    public void Move(Vector2Int startPoint, Vector2Int endPoint)
+    public void MoveToPos(Vector2Int startPoint, Vector2Int endPoint)
     {
         if (isMoving)
             return;
@@ -65,8 +69,7 @@ public class EnemyController : MonoBehaviour
 
         while (true)
         {
-            Vector3 translatedPosition = new Vector3(pathPoints[pathIterator].position.x, 0, pathPoints[pathIterator].position.y) * _levelGenerator._sizeModifier;
-            translatedPosition += new Vector3(-0.5f, 0, 0.5f);
+            Vector3 translatedPosition = getWorldPosFromPointPos(pathPoints[pathIterator].position);
             translatedPosition.y = transform.position.y;
 
             transform.position = Vector3.MoveTowards(transform.position, translatedPosition, _MoveSpeed * Time.deltaTime);
@@ -171,7 +174,39 @@ public class EnemyController : MonoBehaviour
     }
 
     void GetPathAfterPathFind(Vector2Int start)
-    {   
+    {
+        int pathPointCount = 1;
+
+        pathPoints.Add(openPoints[0]);
+        pathPoints.Add(openPoints[0].parentPoint);
+
+        while(true)
+        {
+            Vector3 currentPosition = getWorldPosFromPointPos(pathPoints[pathPointCount - 1].position);
+            currentPosition.y = transform.position.y;
+
+            Vector3 positionToCheck = getWorldPosFromPointPos(pathPoints[pathPointCount].position);
+            positionToCheck.y = transform.position.y;
+
+            RaycastHit hit;
+
+            if (pathPoints[pathPointCount].position == start)
+            {
+                pathPoints.Add(pathPoints[pathPointCount]);
+                pathPoints.Reverse();
+                break;
+            }
+            
+            if (!Physics.Raycast(currentPosition, positionToCheck - currentPosition, out hit, Vector3.Distance(currentPosition, positionToCheck), _obstacles))
+                pathPoints[pathPointCount] = pathPoints[pathPointCount].parentPoint;
+            else
+            {
+                pathPoints.Add(pathPoints[pathPointCount]);
+                pathPointCount++;
+            }
+        }
+
+        /*
         pathPoints.Add(openPoints[0]);
         
         while(true)
@@ -185,6 +220,7 @@ public class EnemyController : MonoBehaviour
         }
 
         pathPoints.Reverse();
+        */
         
     }
 
@@ -313,128 +349,10 @@ public class EnemyController : MonoBehaviour
         {
             Vector3 center = getWorldPosFromPointPos(pathPoints[i].position);
             Gizmos.DrawCube(center, Vector3.one / 2);
+
+            if (i > 0)
+                Gizmos.DrawLine(getWorldPosFromPointPos(pathPoints[i - 1].position), getWorldPosFromPointPos(pathPoints[i].position));
         }
-    }
-    #endregion
-}
-
-public static class DDA
-{
-    #region Raycasting for Pathfinding
-    public static bool Cast(Vector2Int start, Vector2Int end, char[,] map)
-    {
-        //Declare direction of the ray
-        Vector2Int dir = end - start;
-
-        Vector2Int steps = start;
-
-        int p = 2 * dir.y - dir.x;
-
-        Debug.Log("Started at " + steps);
-
-        for (int i = 0; i < 100; i++)
-        {
-            if (p >= 0)
-            {
-                steps.y += 1;
-                p = p + 2 * dir.y - 2 * dir.x;
-            }
-            else
-            {
-                p = p + 2 * dir.y;
-                steps.x += 1;
-            }
-
-            Debug.Log("Moved to " + steps);
-
-            if (steps == end)
-                return true;
-
-            if (map[steps.x, steps.y] == '#')
-            {
-                Debug.Log("Broke off for loop at " + i + " iterations because I hit a wall");
-                return false;
-            }
-        }
-
-        Debug.Log("Iterated a fuckin 100 times with no result");
-        return false;
-
-        /*
-        //Get direction
-        Vector2 rayStart = start;
-        Vector2 dir = end - start;
-        dir = dir.normalized;
-
-        //Vector2 RayUnitStepSize = new Vector2(Mathf.Sqrt(1f + (dir.y / dir.x) * (dir.y / dir.x)), Mathf.Sqrt(1f + (dir.x / dir.y) * (dir.x / dir.y)));
-        float deltaDistX = (dir.x == 0) ? Mathf.Infinity : Mathf.Abs(1 / dir.x);
-        float deltaDistY = (dir.y == 0) ? Mathf.Infinity : Mathf.Abs(1 / dir.y);
-
-        Vector2Int mapCheck = Vector2Int.RoundToInt(rayStart);
-        Vector2 rayLength1D = new Vector2();
-
-        Vector2Int vStep = Vector2Int.zero;
-        
-        if (dir.x < 0)
-        {
-            vStep.x = -1;
-            rayLength1D.x = (rayStart.x - (float)mapCheck.x) * deltaDistX;   
-        }
-        else
-        {
-            vStep.x = 1;
-            rayLength1D.x = ((float)mapCheck.x + 1.0f - rayStart.x) * deltaDistX;
-        }
-
-        if (dir.y < 0)
-        {
-            vStep.y = -1;
-            rayLength1D.y = (rayStart.y - (float)mapCheck.y) * deltaDistY;
-        }
-        else
-        {
-            vStep.x = 1;
-            rayLength1D.y = ((float)mapCheck.y + 1.0f - rayStart.y) * deltaDistY;
-        }
-
-        while(true)
-        {
-            if (rayLength1D.x < rayLength1D.y)
-            {
-                rayLength1D.x += deltaDistX;
-                mapCheck.x += vStep.x;
-            }
-            else
-            {
-                rayLength1D.y += deltaDistY;
-                mapCheck.y += vStep.y;
-            }
-
-            Debug.Log("Raylength 1D = " + rayLength1D);
-            Debug.Log("Map grid checked: " + mapCheck);
-
-            //Check results
-            if (mapCheck.x > map.GetLength(0) || mapCheck.x < 0)
-            {
-                Debug.Log("Tried to move out of map");
-                return false;
-            }
-            if (mapCheck.y > map.GetLength(1) || mapCheck.y < 0)
-            {
-                Debug.Log("Tried to move out of map");
-                return false;
-            }
-
-            if (mapCheck == end)
-                return true;
-
-            switch (map[mapCheck.x, mapCheck.y])
-            {
-                case '#':
-                    return false;
-            }
-        }
-        */
     }
     #endregion
 }

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6029632734888849771}
   - component: {fileID: 6029632734888849768}
   - component: {fileID: 6029632734888849764}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: CoolAxe_Drop
   m_TagString: Items
   m_Icon: {fileID: 0}

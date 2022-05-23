@@ -11,10 +11,13 @@ public class Container_Behaviour : MonoBehaviour
     public GameObject _dropItem;
 
     [HideInInspector]
-    public bool isOpen = false;
+    bool isOpen = false;
 
     public void Open()
     {
+        if (isOpen)
+            return;
+
         StartCoroutine(openLid());
     }
 

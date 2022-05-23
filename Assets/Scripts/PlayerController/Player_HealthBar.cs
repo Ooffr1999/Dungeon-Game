@@ -21,6 +21,12 @@ public class Player_HealthBar : MonoBehaviour
         back_Bar.value = currentValue;
     }
 
+    public void UpdateBothBars(int currentValue)
+    {
+        UpdateFrontBar(currentValue);
+        UpdateBackBar(currentValue);
+    }
+
     public void UpdateFrontBar(int currentValue)
     {
         front_Bar.value = currentValue;

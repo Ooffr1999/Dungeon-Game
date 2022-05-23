@@ -43,6 +43,8 @@ public class Player_Movement : MonoBehaviour
         input.Player.Run.started += ctx => _run = true;
         input.Player.Run.canceled += ctx => _run = false;
 
+        input.Player.Dash.started += ctx => Dash();
+
         input.Player.Look.performed += ctx => _cursorPos = ctx.ReadValue<Vector2>();
     }
 
@@ -99,7 +101,7 @@ public class Player_Movement : MonoBehaviour
         }
 
         //Rotate after mouse
-        if (step != 0)
+        if (step != 0 && _canMove)
             transform.eulerAngles = new Vector3(0, GetMouseAngle() - 45, 0);
 
         //Apply Movement
@@ -110,6 +112,36 @@ public class Player_Movement : MonoBehaviour
         if (step > 0)
             _animController.SetBool("IsWalking", true);
         else _animController.SetBool("IsWalking", false);
+    }
+
+    void Dash()
+    {
+        if (!_canMove || currentStamina < 10)
+            return;
+
+        currentStamina -= 10;
+        _staminaBar.UpdateBothBars((int)currentStamina);
+
+        StartCoroutine(DashRoutine());
+    }
+
+    IEnumerator DashRoutine()
+    {
+        float time = 0;
+        _canMove = false;
+
+        while(true)
+        {
+            if (time >= 0.1)
+                break;
+
+            time += Time.deltaTime;
+            controller.Move(transform.forward * 50 * Time.deltaTime);
+
+            yield return new WaitForEndOfFrame();
+        }
+
+        _canMove = true;
     }
 
     float GetMouseAngle()

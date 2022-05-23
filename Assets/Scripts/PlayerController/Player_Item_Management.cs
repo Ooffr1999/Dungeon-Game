@@ -107,6 +107,7 @@ public class Player_Item_Management : MonoBehaviour
                     _secondaryItem = Instantiate(pickup.item.createItem, _leftWeapon.transform.position, transform.rotation);
                     
                     _secondaryItemComponent = _secondaryItem.GetComponent<Weapon>();
+                    _secondaryItemComponent._isMainWeapon = false;
                     _secondaryItemComponent._anim = _anim;
                     _secondaryItemData = pickup.item;
                     _secondaryItem.transform.parent = _leftWeapon.transform;
@@ -123,18 +124,26 @@ public class Player_Item_Management : MonoBehaviour
         switch(slot)
         {
             case 0:
+                if (_mainItem == null)
+                    return;
+
                 //Drop main item
                 DropItem(_mainItemData);
                 RemoveIcon(itemSlot_Main);
                 _mainItemComponent = null;
+                Destroy(_rightWeapon.transform.GetChild(0).gameObject);
                 _mainItem = null;
                 break;
 
             case 1:
+                if (_secondaryItem == null)
+                    return;
+
                 //Drop secondary item
                 DropItem(_secondaryItemData);
                 RemoveIcon(itemSlot_Secondary);
                 _secondaryItemComponent = null;
+                Destroy(_leftWeapon.transform.GetChild(0).gameObject);
                 _secondaryItem = null;
                 break;
 
@@ -184,15 +193,29 @@ public class Player_Item_Management : MonoBehaviour
         }
     }
 
-    public void EnableAttack()
+    public void EnableMainAttack()
     {
         _mainItemComponent._canDamage = true;
+    }
+    public void EnableSecondaryAttack()
+    {
         _secondaryItemComponent._canDamage = true;
     }
     public void DisableAttack()
     {
-        _mainItemComponent._canDamage = false;
-        _secondaryItemComponent._canDamage = false;
+        if (_mainItemComponent != null)
+            _mainItemComponent._canDamage = false;
+        if (_secondaryItemComponent != null)
+            _secondaryItemComponent._canDamage = false;
+    }
+
+    public void ResetDamageDealtBool()
+    {
+        if (_mainItemComponent != null)
+            _mainItemComponent._hasDealtDamage = false;
+
+        if (_secondaryItemComponent != null)
+            _secondaryItemComponent._hasDealtDamage = false;
     }
 
     private void OnEnable()
