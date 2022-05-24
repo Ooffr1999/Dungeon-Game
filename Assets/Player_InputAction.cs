@@ -67,6 +67,14 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
+                    ""name"": ""UtilityAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""ba0fe99e-cddc-4f80-8a5d-60e545b5024c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
                     ""name"": ""Dash"",
                     ""type"": ""Button"",
                     ""id"": ""1dd0e84a-7d03-4723-a59a-c21d50a69fcc"",
@@ -150,6 +158,17 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9c1c1ac-2b77-4187-8570-603883b4de0b"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""UtilityAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -733,6 +752,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         m_Player_Interract = m_Player.FindAction("Interract", throwIfNotFound: true);
         m_Player_MainAttack = m_Player.FindAction("MainAttack", throwIfNotFound: true);
         m_Player_SecondaryAttack = m_Player.FindAction("SecondaryAttack", throwIfNotFound: true);
+        m_Player_UtilityAttack = m_Player.FindAction("UtilityAttack", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
@@ -801,6 +821,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Interract;
     private readonly InputAction m_Player_MainAttack;
     private readonly InputAction m_Player_SecondaryAttack;
+    private readonly InputAction m_Player_UtilityAttack;
     private readonly InputAction m_Player_Dash;
     public struct PlayerActions
     {
@@ -812,6 +833,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         public InputAction @Interract => m_Wrapper.m_Player_Interract;
         public InputAction @MainAttack => m_Wrapper.m_Player_MainAttack;
         public InputAction @SecondaryAttack => m_Wrapper.m_Player_SecondaryAttack;
+        public InputAction @UtilityAttack => m_Wrapper.m_Player_UtilityAttack;
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
@@ -840,6 +862,9 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 @SecondaryAttack.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSecondaryAttack;
                 @SecondaryAttack.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSecondaryAttack;
                 @SecondaryAttack.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSecondaryAttack;
+                @UtilityAttack.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUtilityAttack;
+                @UtilityAttack.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUtilityAttack;
+                @UtilityAttack.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUtilityAttack;
                 @Dash.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
                 @Dash.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
                 @Dash.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
@@ -865,6 +890,9 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 @SecondaryAttack.started += instance.OnSecondaryAttack;
                 @SecondaryAttack.performed += instance.OnSecondaryAttack;
                 @SecondaryAttack.canceled += instance.OnSecondaryAttack;
+                @UtilityAttack.started += instance.OnUtilityAttack;
+                @UtilityAttack.performed += instance.OnUtilityAttack;
+                @UtilityAttack.canceled += instance.OnUtilityAttack;
                 @Dash.started += instance.OnDash;
                 @Dash.performed += instance.OnDash;
                 @Dash.canceled += instance.OnDash;
@@ -1030,6 +1058,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         void OnInterract(InputAction.CallbackContext context);
         void OnMainAttack(InputAction.CallbackContext context);
         void OnSecondaryAttack(InputAction.CallbackContext context);
+        void OnUtilityAttack(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
     }
     public interface IUIActions

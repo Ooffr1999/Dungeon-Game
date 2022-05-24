@@ -7,6 +7,8 @@ public class Player_Movement : MonoBehaviour
 {
     public float _moveSpeed;
     public float _runSpeedModifier;
+    public float _dashSpeed;
+    public int _dashStaminaCost;
 
     [Space(5)]
     public bool _canMove;
@@ -116,10 +118,10 @@ public class Player_Movement : MonoBehaviour
 
     void Dash()
     {
-        if (!_canMove || currentStamina < 10)
+        if (currentStamina < _dashStaminaCost)
             return;
 
-        currentStamina -= 10;
+        currentStamina -= _dashStaminaCost;
         _staminaBar.UpdateBothBars((int)currentStamina);
 
         StartCoroutine(DashRoutine());
@@ -136,7 +138,7 @@ public class Player_Movement : MonoBehaviour
                 break;
 
             time += Time.deltaTime;
-            controller.Move(transform.forward * 50 * Time.deltaTime);
+            controller.Move(transform.forward * _dashSpeed * Time.deltaTime);
 
             yield return new WaitForEndOfFrame();
         }

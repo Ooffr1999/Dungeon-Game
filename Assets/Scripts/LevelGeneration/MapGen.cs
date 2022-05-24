@@ -127,7 +127,7 @@ public static class MapGen
         RoomEngine.GenerateWalls(map);
         RoomEngine.CleanFloorHoles(map);
 
-        //RoomEngine.PlaceDoors(map);
+        RoomEngine.PlaceDoors(map);
 
         RoomEngine.PlaceStartOrEndPoint(map, 'S');
         RoomEngine.PlaceStartOrEndPoint(map, 'E');

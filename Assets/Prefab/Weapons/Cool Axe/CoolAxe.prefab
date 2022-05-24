@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 5737731537024658141}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 2768638299101282315}
   m_Father: {fileID: 0}
@@ -116,6 +116,7 @@ MonoBehaviour:
   _weaponType: 0
   _anim: {fileID: 0}
   _canDamage: 0
+  _hasDealtDamage: 0
 --- !u!1 &8108660268187838978
 GameObject:
   m_ObjectHideFlags: 0

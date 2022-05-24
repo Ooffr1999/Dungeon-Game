@@ -7,9 +7,6 @@ public class Player_Interract : MonoBehaviour
 {
     public Player_Movement p_Mov;
     public Player_Item_Management p_Items;
-    
-    public bool canAttack = true;
-    public Animator _anim;
 
     Player_InputAction input;
 
@@ -27,6 +24,8 @@ public class Player_Interract : MonoBehaviour
         p_Items.RetreiveItem();
         
         ClimbDownDungeon();
+
+        OpenDoor();
     }
 
     void GetChests()
@@ -37,6 +36,17 @@ public class Player_Interract : MonoBehaviour
         {
             if (hit.collider.CompareTag("Container"))
                 hit.collider.gameObject.GetComponent<Container_Behaviour>().Open();
+        }
+    }
+
+    void OpenDoor()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, 1.5f))
+        {
+            if (hit.collider.CompareTag("Door"))
+                hit.collider.gameObject.GetComponent<DoorBehaviour>().Open();
         }
     }
 

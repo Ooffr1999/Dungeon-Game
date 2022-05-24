@@ -9,6 +9,7 @@ public class LevelGen : MonoBehaviour
     public Vector2Int size;
     public GameObject[] floorPlanes;
     public GameObject[] wallPlanes;
+    public GameObject[] doors;
 
     [Space(10)]
     public float _sizeModifier;
@@ -26,6 +27,8 @@ public class LevelGen : MonoBehaviour
     public List<GameObject> _floorPool;
     [HideInInspector]
     public List<GameObject> _wallPool;
+    [HideInInspector]
+    public List<GameObject> _doorPool;
 
     [HideInInspector]
     public static LevelGen _instance;
@@ -111,6 +114,7 @@ public class LevelGen : MonoBehaviour
 
         int floorPiecesUsed = 0;
         int wallPieceUsed = 0;
+        int doorPieceUsed = 0;
 
         for (int y = 0; y < map.GetLength(1); y++)
         {
@@ -136,8 +140,33 @@ public class LevelGen : MonoBehaviour
                         stairs.transform.localScale = Vector3.one * _sizeModifier;
                         stairs.transform.position = (new Vector3(x, 0, y) + new Vector3(-0.5f, 0.5f, 0.5f)) * _sizeModifier;
                         break;
+
+                    //Place door
+                    case 'D':
+                        _floorPool[floorPiecesUsed].transform.position = new Vector3(x, 0, y) * _sizeModifier;
+                        _floorPool[floorPiecesUsed].SetActive(true);
+                        floorPiecesUsed++;
+
+                        _doorPool[doorPieceUsed].transform.position = new Vector3(x, 0, y) * _sizeModifier;
+
+                        switch(RoomEngine.MarchThroughMap(map, '#', x, y))
+                        {
+                            case 5:
+                                _doorPool[doorPieceUsed].transform.eulerAngles = Vector3.up * 90;
+                                break;
+
+                            case 10:
+                                _doorPool[doorPieceUsed].transform.eulerAngles = Vector3.up * 0;
+                                break;
+                        }
+
+                        _doorPool[doorPieceUsed].SetActive(true);
+                        doorPieceUsed++;
+
+                        break;
                 }
 
+                //Place wall
                 switch(EvaluateForWallPlacement(map, x, y, wallPieceUsed))
                 {
                     case 1:
@@ -207,6 +236,7 @@ public class LevelGen : MonoBehaviour
         player.transform.position = getStartPosition(map) * _sizeModifier;
         player.GetComponent<CharacterController>().enabled = true;
     }
+    
     void InitPool()
     {
         //Floor pool
@@ -229,7 +259,18 @@ public class LevelGen : MonoBehaviour
             _wallPool.Add(wallPiece);
             wallPiece.SetActive(false);
         }
+        
+        //Door pool
+        for (int i = 0; i < size.x * size.y / 2; i++)
+        {
+            GameObject door = Instantiate(doors[0], doors[0].transform.position, doors[0].transform.rotation);
+            door.transform.localScale *= _sizeModifier;
+            door.transform.parent = this.transform;
+            _doorPool.Add(door);
+            door.SetActive(false);
+        }
     }
+    
     void ClearRoom()
     {
         for (int i = 0; i < _floorPool.Count; i++)
@@ -242,7 +283,14 @@ public class LevelGen : MonoBehaviour
             _wallPool[i].transform.eulerAngles = Vector3.zero;
             _wallPool[i].SetActive(false);
         }
+
+        for (int i = 0; i < _doorPool.Count; i++)
+        {
+            _doorPool[i].transform.eulerAngles = Vector3.zero;
+            _doorPool[i].SetActive(false);
+        }
     }
+    
     public void MakeLevel()
     {
         ClearRoom();
@@ -250,6 +298,7 @@ public class LevelGen : MonoBehaviour
         GenerateLevel();
         GetNewSeed();
     }
+    
     float EvaluateForWallPlacement(char[,] map, int x, int y, int poolIndex)
     {
         if (map[x, y] != '#')
@@ -268,6 +317,7 @@ public class LevelGen : MonoBehaviour
         Vector3 _westAdditionRot = Vector3.up * 270;
  
         int index = RoomEngine.MarchThroughMap(map, '.', x, y);
+        index += RoomEngine.MarchThroughMap(map, 'D', x, y);
 
         switch(index)
         {
@@ -432,6 +482,7 @@ public class LevelGen : MonoBehaviour
 
         return index;
     }
+    
     public Vector3 getStartPosition(char[,] map)
     {
         for(int y = 0; y < map.GetLength(1); y++)
@@ -444,6 +495,7 @@ public class LevelGen : MonoBehaviour
             Debug.LogError("Found no Start Point");
             return Vector3.zero;
     }
+    
     public char[,] getMap()
     {
         return map;

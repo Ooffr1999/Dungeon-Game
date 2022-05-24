@@ -11,16 +11,19 @@ public class Player_Item_Management : MonoBehaviour
     [Space(10)]
     public GameObject _mainItem;
     public GameObject _secondaryItem;
-    public Item _armorItem;
-    public Item _utilityItem;
+    public GameObject _armorItem;
+    public GameObject _utilityItem;
 
     [Space(10)]
     public Weapon _mainItemComponent;
     public Weapon _secondaryItemComponent;
+    public Utility _utilityItemComponent;
 
     [Space(10)]
     public Objects _mainItemData;
     public Objects _secondaryItemData;
+    public Objects _armorItemData;
+    public Objects _utilityItemData;
 
     [Space(10)]
     public GameObject iconHolder;
@@ -28,6 +31,8 @@ public class Player_Item_Management : MonoBehaviour
     [Space(5)]
     public GameObject _rightWeapon;
     public GameObject _leftWeapon;
+    public GameObject _armor;
+    public GameObject _utility;
 
     [SerializeField]
     GameObject _dropItemTemplate;
@@ -46,6 +51,7 @@ public class Player_Item_Management : MonoBehaviour
 
         input.Player.MainAttack.started += ctx => _mainItemComponent.Attack();
         input.Player.SecondaryAttack.started += ctx => _secondaryItemComponent.Attack();
+        input.Player.UtilityAttack.started += ctx => _utilityItemComponent.OnAbilityEngage();
     }
 
     private void Start()
@@ -59,7 +65,7 @@ public class Player_Item_Management : MonoBehaviour
 
     public void RetreiveItem()
     {
-        if (_mainItem != null && _secondaryItem != null)
+        if (_mainItem != null && _secondaryItem != null && _utilityItem != null)
             return;
 
         if (Physics.CheckSphere(transform.position, itemSearchRadius, itemLayer))
@@ -114,9 +120,17 @@ public class Player_Item_Management : MonoBehaviour
                     _secondaryItem.transform.localEulerAngles = Vector3.zero;
                 }
                 
-                SetIcon();
+                break;
+
+            case Objects.Slot.utility:
+                _utilityItem = Instantiate(pickup.item.createItem, _utility.transform.position, transform.rotation);
+                _utilityItemComponent = _utilityItem.GetComponent<Utility>();
+                _utilityItemData = pickup.item;
+                _utilityItem.transform.parent = _utility.transform;
+                _utilityItem.transform.localEulerAngles = Vector3.zero;
                 break;
         }
+        SetIcon();
     }
 
     public void InitDropItem(int slot)
@@ -153,6 +167,11 @@ public class Player_Item_Management : MonoBehaviour
 
             case 3:
                 //Drop Utility item
+                DropItem(_utilityItemData);
+                RemoveIcon(itemSlot_Utility);
+                _utilityItemComponent = null;
+                Destroy(_utility.transform.GetChild(0).gameObject);
+                _utilityItem = null;
                 break;
         }
     }
@@ -170,6 +189,8 @@ public class Player_Item_Management : MonoBehaviour
             itemSlot_Main.transform.GetChild(0).GetComponent<Image>().sprite = _mainItemData.icon;
         if (_secondaryItem != null)
             itemSlot_Secondary.transform.GetChild(0).GetComponent<Image>().sprite = _secondaryItemData.icon;
+        if (_utilityItem != null)
+            itemSlot_Utility.transform.GetChild(0).GetComponent<Image>().sprite = _utilityItemData.icon;
     }
 
     void RemoveIcon(GameObject itemSlot)

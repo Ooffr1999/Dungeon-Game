@@ -54,6 +54,14 @@
                     "interactions": ""
                 },
                 {
+                    "name": "UtilityAttack",
+                    "type": "Button",
+                    "id": "ba0fe99e-cddc-4f80-8a5d-60e545b5024c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
                     "name": "Dash",
                     "type": "Button",
                     "id": "1dd0e84a-7d03-4723-a59a-c21d50a69fcc",
@@ -137,6 +145,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d9c1c1ac-2b77-4187-8570-603883b4de0b",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "UtilityAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

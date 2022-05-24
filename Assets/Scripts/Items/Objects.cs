@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Weapon", menuName = "Weapon", order = 1)]
+[CreateAssetMenu(fileName = "Objects", menuName = "Objects", order = 1)]
 public class Objects : ScriptableObject
 {
-    [Header("Weapons Information")]
+    [Header("Object Information")]
     public string name;
 
     [Header("Data")]

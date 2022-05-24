@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public int currentHealth;
     public int maxHealth;
+
+    [HideInInspector]
+    public int currentHealth;
 
     [Space(10)]
     public GameObject healthBarObject;
@@ -18,14 +20,15 @@ public class EnemyHealth : MonoBehaviour
         healthBar = GetComponent<Player_HealthBar>();
         healthBar.InitBar(maxHealth, maxHealth);
 
+        currentHealth = maxHealth;
+
         mainCam = Camera.main;
     }
 
-    /*
     private void FixedUpdate()
     {
-        healthBarObject.transform.LookAt(mainCam.gameObject.transform.position);
-    }*/
+        healthBarObject.transform.LookAt(mainCam.transform.position);
+    }
 
     public void AddHealth(int healthToAdd)
     {
