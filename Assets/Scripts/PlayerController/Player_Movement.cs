@@ -156,6 +156,17 @@ public class Player_Movement : MonoBehaviour
         _canMove = false;
     }
 
+    private void OnTriggerStay(Collider other)
+    {
+        if (!other.CompareTag("Door"))
+            return;
+
+        if (!_animController.GetBool("IsDashing"))
+            return;
+
+        other.gameObject.SetActive(false);
+    }
+
     private void OnEnable()
     {
         input.Player.Enable();
