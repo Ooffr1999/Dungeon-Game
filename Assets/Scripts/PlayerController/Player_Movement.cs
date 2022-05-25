@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class Player_Movement : MonoBehaviour
 {
     public float _moveSpeed;
-    public float _runSpeedModifier;
+    public float _onAttackMoveSpeed;
     public float _dashSpeed;
     public int _dashStaminaCost;
 
@@ -65,41 +65,19 @@ public class Player_Movement : MonoBehaviour
         //Apply Gravity
         controller.Move(transform.up * -2);
     }
-    public void ReversePlayerMove ()
-    {
-        _canMove = !_canMove;
-    }
+
     private void ApplyMovement()
     {
-        float step = _move * _moveSpeed * Time.deltaTime;
+        float step;
+
+        if (!_animController.GetBool("IsAttacking"))
+            step = _move * _moveSpeed * Time.deltaTime;
+        else step = _move * _onAttackMoveSpeed * Time.deltaTime;
         
-        //Apply Running and appropriate stamina management
-        if (_run && currentStamina > 0)
-        {
-            step *= _runSpeedModifier;
-
-            if (step != 0)
-            {
-                currentStamina -= Time.deltaTime * staminaDrainRateModifier;
-                _staminaBar.UpdateFrontBar((int)currentStamina);
-                _staminaBar.UpdateBackBar((int)currentStamina);
-                _animController.SetBool("IsRunning", true);
-            }
-
-            else if (currentStamina <= maxStamina)
-            {
-                currentStamina += Time.deltaTime * staminaGainModifier;
-                _staminaBar.UpdateFrontBar((int)currentStamina);
-                _staminaBar.UpdateBackBar((int)currentStamina);
-                _animController.SetBool("IsRunning", false);
-            }
-        }
-        else if (currentStamina <= maxStamina)
+        if (currentStamina <= maxStamina)
         {
             currentStamina += Time.deltaTime * staminaGainModifier;
-            _staminaBar.UpdateFrontBar((int)currentStamina);
-            _staminaBar.UpdateBackBar((int)currentStamina);
-            _animController.SetBool("IsRunning", false);
+            _staminaBar.UpdateBothBars((int)currentStamina);
         }
 
         //Rotate after mouse
@@ -112,8 +90,11 @@ public class Player_Movement : MonoBehaviour
 
         //Animations/////
         if (step > 0)
-            _animController.SetBool("IsWalking", true);
-        else _animController.SetBool("IsWalking", false);
+            _animController.SetBool("IsRunning", true);
+        else _animController.SetBool("IsRunning", false);
+
+        //Set Player Blend tree correctly
+        _animController.SetFloat("Momentum", Mathf.Lerp(0, 0.5f, controller.velocity.magnitude));
     }
 
     void Dash()
@@ -131,10 +112,11 @@ public class Player_Movement : MonoBehaviour
     {
         float time = 0;
         _canMove = false;
+        _animController.SetBool("IsDashing", true);
 
         while(true)
         {
-            if (time >= 0.1)
+            if (time >= 0.15)
                 break;
 
             time += Time.deltaTime;
@@ -143,6 +125,7 @@ public class Player_Movement : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
+        _animController.SetBool("IsDashing", false);
         _canMove = true;
     }
 

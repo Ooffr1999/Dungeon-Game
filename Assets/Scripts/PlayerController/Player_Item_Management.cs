@@ -43,6 +43,7 @@ public class Player_Item_Management : MonoBehaviour
     GameObject itemSlot_Utility;
 
     public Animator _anim;
+    public AnimatorOverrideController _overrideController;
     Player_InputAction input;
 
     void Awake()
@@ -106,6 +107,9 @@ public class Player_Item_Management : MonoBehaviour
                     _mainItemData = pickup.item;
                     _mainItem.transform.parent = _rightWeapon.transform;
                     _mainItem.transform.localEulerAngles = Vector3.zero;
+                    _mainItemComponent._damage = _mainItemData.damageOnHit;
+                    _overrideController["Player_Anim_Right_Weapon"] = _mainItemData._mainWeaponAnim;
+                    _anim.SetFloat("MainWeaponSpeedModifier", _mainItemData.weaponSpeedModifier);
                 }
 
                 else if (_secondaryItem == null)
@@ -118,11 +122,17 @@ public class Player_Item_Management : MonoBehaviour
                     _secondaryItemData = pickup.item;
                     _secondaryItem.transform.parent = _leftWeapon.transform;
                     _secondaryItem.transform.localEulerAngles = Vector3.zero;
+                    _secondaryItemComponent._damage = _secondaryItemData.damageOnHit;
+                    _overrideController["Player_Anim_Left_Weapon"] = _secondaryItemData._secondaryWeaponAnim;
+                    _anim.SetFloat("SecondaryWeaponSpeedModifier", _secondaryItemData.weaponSpeedModifier);
                 }
                 
                 break;
 
             case Objects.Slot.utility:
+                if (_utilityItem != null)
+                    break;
+
                 _utilityItem = Instantiate(pickup.item.createItem, _utility.transform.position, transform.rotation);
                 _utilityItemComponent = _utilityItem.GetComponent<Utility>();
                 _utilityItemData = pickup.item;
@@ -216,16 +226,25 @@ public class Player_Item_Management : MonoBehaviour
 
     public void EnableMainAttack()
     {
-        _mainItemComponent._canDamage = true;
+        if (_mainItemComponent != null)
+            _mainItemComponent._canDamage = true;
     }
+    
     public void EnableSecondaryAttack()
     {
-        _secondaryItemComponent._canDamage = true;
+        if (_secondaryItemComponent != null)
+            _secondaryItemComponent._canDamage = true;
     }
-    public void DisableAttack()
+    
+    public void DisableMainAttack()
     {
         if (_mainItemComponent != null)
             _mainItemComponent._canDamage = false;
+        
+    }
+
+    public void DisableSecondaryAttack()
+    {
         if (_secondaryItemComponent != null)
             _secondaryItemComponent._canDamage = false;
     }
@@ -237,6 +256,37 @@ public class Player_Item_Management : MonoBehaviour
 
         if (_secondaryItemComponent != null)
             _secondaryItemComponent._hasDealtDamage = false;
+    }
+
+    public void EnableIsAttacking()
+    {
+        _anim.SetBool("IsAttacking", true);
+    }
+
+    public void DisableIsAttacking()
+    {
+        _anim.SetBool("IsAttacking", false);
+    }
+
+    public void ResetAllWeaponVariables()
+    {
+        Debug.Log("Reset attack variables");
+        ResetDamageDealtBool();
+        EnableMainAttack();
+        EnableSecondaryAttack();
+        
+    }
+
+    public void ActivateMainOnAttackEnd()
+    {
+        DisableIsAttacking();
+        _mainItemComponent.OnAttackOver();
+    }
+
+    public void ActivateSecondaryOnAttackEnd()
+    {
+        DisableIsAttacking();
+        _secondaryItemComponent.OnAttackOver();
     }
 
     private void OnEnable()

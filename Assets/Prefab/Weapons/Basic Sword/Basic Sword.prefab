@@ -101,7 +101,7 @@ MonoBehaviour:
   _attackSpeed: 2
   _weaponType: 0
   _anim: {fileID: 0}
-  _canDamage: 0
+  _canDamage: 1
   _hasDealtDamage: 0
 --- !u!65 &4985867053847151633
 BoxCollider:
@@ -114,5 +114,5 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.062594876, y: 0.7445717, z: 0.10123324}
-  m_Center: {x: 0.00000015646219, y: 0.60732293, z: 0.018513184}
+  m_Size: {x: 0.12657325, y: 0.80865955, z: 0.17952983}
+  m_Center: {x: 0.0006979307, y: 0.639367, z: 0.023971558}

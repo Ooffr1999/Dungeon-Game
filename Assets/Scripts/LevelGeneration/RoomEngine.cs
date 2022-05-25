@@ -242,6 +242,7 @@ namespace RoomGen
             }
         }
 
+        //Place hall tiles around main path
         static void PlaceHallTileSecondary(char[,] map, int x, int y)
         {
             switch (map[x, y])
@@ -256,6 +257,7 @@ namespace RoomGen
             }
         }
 
+        //Place doors on map
         public static void PlaceDoors(char[,] map)
         {
             for (int y = 0; y < map.GetLength(1); y++)
@@ -326,6 +328,14 @@ namespace RoomGen
                         count++;
 
             return count;
+        }
+
+        public static Vector2Int getRandomMapPos(char[,] map)
+        {
+            int randX = UnityEngine.Random.Range(0, map.GetLength(0));
+            int randY = UnityEngine.Random.Range(0, map.GetLength(1));
+
+            return new Vector2Int(randX, randY);
         }
     }
 

@@ -11,15 +11,15 @@ GameObject:
   - component: {fileID: 7780221941782218381}
   - component: {fileID: 7780221941781394643}
   - component: {fileID: 7780221941780331077}
-  - component: {fileID: 7780221941782631763}
   - component: {fileID: 7568254228642570851}
+  - component: {fileID: 7780221941782631763}
   m_Layer: 0
   m_Name: Catacomb_Wooden_Chest
   m_TagString: Container
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7780221941782218381
 Transform:
   m_ObjectHideFlags: 0
@@ -27,14 +27,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7780221941782503241}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 84, y: 0, z: 118}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+  m_LocalPosition: {x: 65, y: 0, z: 122.5}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
   - {fileID: 7780221941782235459}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!33 &7780221941781394643
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -85,6 +85,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &7568254228642570851
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7780221941782503241}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.8512431, y: 0.7179551, z: 0.57276905}
+  m_Center: {x: 0.000000029802322, y: 0.35897756, z: -0.0066945553}
 --- !u!114 &7780221941782631763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,21 +112,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openSpeed: 5
   lid: {fileID: 7780221941782235459}
-  _dropItem: {fileID: 0}
-  isOpen: 0
---- !u!65 &7568254228642570851
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7780221941782503241}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.8512431, y: 0.7179551, z: 0.57276905}
-  m_Center: {x: 0.000000029802322, y: 0.35897756, z: -0.0066945553}
+  _dropItem:
+  - {fileID: 4189264557901745005, guid: f1017b88f2adeaa40946f37b267bbfa5, type: 3}
+  - {fileID: 6029632734888849769, guid: a708bbd91e291184dbca53383334597c, type: 3}
+  - {fileID: 6029632734888849769, guid: 0937eefdcd158de43b69401cdc42638f, type: 3}
 --- !u!1 &7780221941782578725
 GameObject:
   m_ObjectHideFlags: 0

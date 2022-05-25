@@ -8,7 +8,7 @@ public class Container_Behaviour : MonoBehaviour
     public Transform lid;
 
     [Space(10)]
-    public GameObject _dropItem;
+    public GameObject[] _dropItem;
 
     [HideInInspector]
     bool isOpen = false;
@@ -48,6 +48,13 @@ public class Container_Behaviour : MonoBehaviour
 
     void DropItem()
     {
-        Instantiate(_dropItem, transform.position + Vector3.right * LevelGen._instance._sizeModifier, transform.rotation);
+        int rand = Random.Range(0, _dropItem.Length);
+        Instantiate(_dropItem[rand], transform.position + Vector3.right * LevelGen._instance._sizeModifier, transform.rotation);
+    }
+
+    public void ResetContainer()
+    {
+        lid.transform.localEulerAngles = Vector3.zero;
+        isOpen = false;
     }
 }

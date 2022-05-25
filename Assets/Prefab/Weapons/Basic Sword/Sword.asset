@@ -12,9 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ddce71e7375dc440bd9df3d55f5a20d, type: 3}
   m_Name: Sword
   m_EditorClassIdentifier: 
-  name: Evil Sword
+  name: Basic Sword
+  weaponInfo: 
   createItem: {fileID: 3298573551258961956, guid: 2af8f09dd5560ec4c8feebb7f144ac0f, type: 3}
+  damageOnHit: 3
+  weaponSpeedModifier: 1.5
   _slotType: 0
   icon: {fileID: 21300000, guid: e6501fb1a9e9cea48b98a5cba5ddf2b0, type: 3}
   model: {fileID: 4300000, guid: 7782f443ba1a6994aa7da99e2a32b54e, type: 3}
   model_Material: {fileID: 2100000, guid: 42b64fdb315e3054ea757d8d1c4bcfa7, type: 2}
+  _mainWeaponAnim: {fileID: 7400000, guid: dd68be5a9829c834c84e996de0eca0bf, type: 2}
+  _secondaryWeaponAnim: {fileID: 7400000, guid: d888115e1f16f0d4bbabbbaed16ec19a, type: 2}

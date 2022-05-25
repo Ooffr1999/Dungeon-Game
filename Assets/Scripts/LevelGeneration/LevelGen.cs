@@ -10,6 +10,7 @@ public class LevelGen : MonoBehaviour
     public GameObject[] floorPlanes;
     public GameObject[] wallPlanes;
     public GameObject[] doors;
+    public GameObject chest;
 
     [Space(10)]
     public float _sizeModifier;
@@ -29,6 +30,8 @@ public class LevelGen : MonoBehaviour
     public List<GameObject> _wallPool;
     [HideInInspector]
     public List<GameObject> _doorPool;
+    [HideInInspector]
+    public List<GameObject> _chestPool;
 
     [HideInInspector]
     public static LevelGen _instance;
@@ -232,6 +235,29 @@ public class LevelGen : MonoBehaviour
             }
         }
 
+        //Place chests
+        int chestAmount = Random.Range(2, 6);
+
+        Debug.Log("Placing " + chestAmount + " chests");
+        for (int i = 0; i < chestAmount; i++)
+        {
+            bool chestPlaced = false;
+            while (!chestPlaced)
+            {
+                Vector2Int pos = RoomEngine.getRandomMapPos(map);
+                int index = RoomEngine.MarchThroughMap(map, '.', pos.x, pos.y);
+                
+                if (index == 15)
+                {
+                    Debug.Log("Place chest");
+                    _chestPool[i].SetActive(true);
+                    _chestPool[i].transform.position = new Vector3(pos.x, 0, pos.y) * _sizeModifier;
+                    chestPlaced = true;
+                }
+            }
+        }
+
+        //Enable player
         player.GetComponent<CharacterController>().enabled = false;
         player.transform.position = getStartPosition(map) * _sizeModifier;
         player.GetComponent<CharacterController>().enabled = true;
@@ -269,6 +295,15 @@ public class LevelGen : MonoBehaviour
             _doorPool.Add(door);
             door.SetActive(false);
         }
+
+        //Chest pool
+        for (int i = 0; i < 50; i++)
+        {
+            GameObject _chest = Instantiate(chest, chest.transform.position, chest.transform.rotation);
+            _chest.transform.parent = this.transform;
+            _chestPool.Add(_chest);
+            chest.SetActive(false);
+        }
     }
     
     void ClearRoom()
@@ -288,6 +323,12 @@ public class LevelGen : MonoBehaviour
         {
             _doorPool[i].transform.eulerAngles = Vector3.zero;
             _doorPool[i].SetActive(false);
+        }
+
+        for (int i = 0; i < _chestPool.Count; i++)
+        {
+            _chestPool[i].transform.eulerAngles = chest.transform.eulerAngles;
+            _chestPool[i].GetComponent<Container_Behaviour>().ResetContainer();
         }
     }
     

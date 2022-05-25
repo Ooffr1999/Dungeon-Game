@@ -20,40 +20,42 @@ public class Player_Interract : MonoBehaviour
     #region Interractions
     void GetPossibleInterractions()
     {
-        GetChests();
         p_Items.RetreiveItem();
         
-        ClimbDownDungeon();
-
-        OpenDoor();
-    }
-
-    void GetChests()
-    {
         RaycastHit hit;
 
         if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, 1.5f))
         {
-            if (hit.collider.CompareTag("Container"))
-                hit.collider.gameObject.GetComponent<Container_Behaviour>().Open();
+            switch(hit.collider.tag)
+            {
+                case "Container":
+                    GetChests(hit);
+                    break;
+
+                case "Door":
+                    OpenDoor(hit);
+                    break;
+
+                case "Stairs":
+                    ClimbDownDungeon(hit);
+                    break;
+            }
         }
     }
 
-    void OpenDoor()
+    void GetChests(RaycastHit hit)
     {
-        RaycastHit hit;
-
-        if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, 1.5f))
-        {
-            if (hit.collider.CompareTag("Door"))
-                hit.collider.gameObject.GetComponent<DoorBehaviour>().Open();
-        }
+        hit.collider.gameObject.GetComponent<Container_Behaviour>().Open();
     }
 
-    void ClimbDownDungeon()
+    void OpenDoor(RaycastHit hit)
     {
-        if (Vector2.Distance(transform.position, (Vector2)LevelGen._instance.getMapEndPos() * LevelGen._instance._sizeModifier) < 3)
-            LevelGen._instance.MakeLevel();
+        hit.collider.gameObject.GetComponent<DoorBehaviour>().Open();
+    }
+
+    void ClimbDownDungeon(RaycastHit hit)
+    {
+        LevelGen._instance.MakeLevel();
     }
     #endregion
 

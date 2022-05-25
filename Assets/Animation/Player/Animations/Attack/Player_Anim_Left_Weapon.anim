@@ -44943,36 +44943,43 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 0.33333334
-    functionName: DisableMovement
+  - time: 0
+    functionName: DisableMainAttack
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0
+    functionName: EnableIsAttacking
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.5
-    functionName: EnableSecondaryAttack
+    functionName: EnableMainAttack
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 1.5
-    functionName: DisableAttack
+  - time: 1.3333334
+    functionName: DisableIsAttacking
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 1.5
-    functionName: EnableMovement
+  - time: 1.4666667
+    functionName: ResetAllWeaponVariables
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 1.5
-    functionName: ResetDamageDealtBool
+  - time: 1.4666667
+    functionName: ActivateSecondaryOnAttackEnd
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

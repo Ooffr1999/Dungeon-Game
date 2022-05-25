@@ -7,7 +7,6 @@ public class Weapon : MonoBehaviour
     public bool _isMainWeapon;
 
     public int _damage;
-    public float _attackSpeed;
 
     public enum WeaponType { sword, axe, club, magic}
     public WeaponType _weaponType;
@@ -15,7 +14,7 @@ public class Weapon : MonoBehaviour
     [HideInInspector]
     public Animator _anim;
 
-    public bool _canDamage;
+    public bool _canDamage = true;
     public bool _hasDealtDamage;
 
     private void Start()
@@ -25,7 +24,7 @@ public class Weapon : MonoBehaviour
 
     public void Attack()
     {
-        if (_canDamage)
+        if (!_canDamage)
             return;
 
         switch(_weaponType)
@@ -41,7 +40,7 @@ public class Weapon : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy") && _canDamage == true && _hasDealtDamage == false)
+        if (other.CompareTag("Enemy") && _canDamage == true)
         {
             _hasDealtDamage = true;
             OnAttackHit(other.gameObject);
@@ -60,6 +59,7 @@ public class Weapon : MonoBehaviour
 
     public virtual void OnAttackOver()
     {
-
+        _canDamage = true;
+        _hasDealtDamage = false;
     }
 }
