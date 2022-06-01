@@ -9,6 +9,7 @@ TagManager:
   - Container
   - Enemy
   - Door
+  - MapChest
   layers:
   - Default
   - TransparentFX

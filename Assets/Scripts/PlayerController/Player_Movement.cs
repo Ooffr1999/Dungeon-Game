@@ -12,6 +12,7 @@ public class Player_Movement : MonoBehaviour
 
     [Space(5)]
     public bool _canMove;
+    public float _lowerScreenInactiveSize;
 
     [Space(10)]
     public int maxStamina;
@@ -26,6 +27,8 @@ public class Player_Movement : MonoBehaviour
     public CharacterController controller;
     [SerializeField]
     Player_HealthBar _staminaBar;
+    [SerializeField]
+    MapAndCharacterBehaviour _mapCharBeh;
 
     Camera cam;
 
@@ -60,10 +63,16 @@ public class Player_Movement : MonoBehaviour
 
     private void Update()
     {
-        ApplyMovement();
-
         //Apply Gravity
         controller.Move(transform.up * -2);
+        
+        if (_mapCharBeh._mapOn && _mapCharBeh._characterOn)
+            return;
+
+        if (_cursorPos.y <= _lowerScreenInactiveSize)
+            return;
+
+        ApplyMovement();
     }
 
     private void ApplyMovement()
@@ -132,6 +141,11 @@ public class Player_Movement : MonoBehaviour
     float GetMouseAngle()
     {
         Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2 + 80);
+
+        if (_mapCharBeh._mapOn)
+            screenCenter.x += Screen.width / 4;
+        if (_mapCharBeh._characterOn)
+            screenCenter.x -= Screen.width / 4;
 
         Vector2 mousePos = _cursorPos - screenCenter;
 

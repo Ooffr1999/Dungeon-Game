@@ -81,6 +81,14 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""7d4fbd4c-55e0-4437-aaf1-8f5fae40e416"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -90,7 +98,18 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                     ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""af732528-914f-44ec-ad00-76e816ff9ee1"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -120,10 +139,10 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""10018d0d-be76-492b-9ab7-3e82b6f0b47c"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Interract"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -131,7 +150,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""8b28f80b-a7b0-4422-bc08-6776711a129b"",
-                    ""path"": ""<Keyboard>/1"",
+                    ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
@@ -142,7 +161,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""e689c2ae-ce7a-44d4-97d0-b40021bef138"",
-                    ""path"": ""<Keyboard>/2"",
+                    ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
@@ -156,7 +175,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -164,11 +183,22 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""d9c1c1ac-2b77-4187-8570-603883b4de0b"",
-                    ""path"": ""<Keyboard>/4"",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""UtilityAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b57068fc-0477-46dd-b6f2-039279bc9bac"",
+                    ""path"": ""<Keyboard>/anyKey"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -679,6 +709,33 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Pause"",
+            ""id"": ""833ac5d2-e097-4e9d-b061-dce0630b5ed6"",
+            ""actions"": [
+                {
+                    ""name"": ""Pause and Unpause"",
+                    ""type"": ""Button"",
+                    ""id"": ""81ad947b-a2d1-4d15-8b9b-d2b30e5c9f99"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""ceb15f1c-5500-4b28-b50d-8e86a9a61627"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Pause and Unpause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -754,6 +811,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         m_Player_SecondaryAttack = m_Player.FindAction("SecondaryAttack", throwIfNotFound: true);
         m_Player_UtilityAttack = m_Player.FindAction("UtilityAttack", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
+        m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -766,6 +824,9 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         m_UI_RightClick = m_UI.FindAction("RightClick", throwIfNotFound: true);
         m_UI_TrackedDevicePosition = m_UI.FindAction("TrackedDevicePosition", throwIfNotFound: true);
         m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
+        // Pause
+        m_Pause = asset.FindActionMap("Pause", throwIfNotFound: true);
+        m_Pause_PauseandUnpause = m_Pause.FindAction("Pause and Unpause", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -823,6 +884,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_SecondaryAttack;
     private readonly InputAction m_Player_UtilityAttack;
     private readonly InputAction m_Player_Dash;
+    private readonly InputAction m_Player_Pause;
     public struct PlayerActions
     {
         private @Player_InputAction m_Wrapper;
@@ -835,6 +897,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         public InputAction @SecondaryAttack => m_Wrapper.m_Player_SecondaryAttack;
         public InputAction @UtilityAttack => m_Wrapper.m_Player_UtilityAttack;
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
+        public InputAction @Pause => m_Wrapper.m_Player_Pause;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -868,6 +931,9 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 @Dash.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
                 @Dash.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
                 @Dash.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
+                @Pause.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPause;
+                @Pause.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPause;
+                @Pause.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPause;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -896,6 +962,9 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 @Dash.started += instance.OnDash;
                 @Dash.performed += instance.OnDash;
                 @Dash.canceled += instance.OnDash;
+                @Pause.started += instance.OnPause;
+                @Pause.performed += instance.OnPause;
+                @Pause.canceled += instance.OnPause;
             }
         }
     }
@@ -1005,6 +1074,39 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         }
     }
     public UIActions @UI => new UIActions(this);
+
+    // Pause
+    private readonly InputActionMap m_Pause;
+    private IPauseActions m_PauseActionsCallbackInterface;
+    private readonly InputAction m_Pause_PauseandUnpause;
+    public struct PauseActions
+    {
+        private @Player_InputAction m_Wrapper;
+        public PauseActions(@Player_InputAction wrapper) { m_Wrapper = wrapper; }
+        public InputAction @PauseandUnpause => m_Wrapper.m_Pause_PauseandUnpause;
+        public InputActionMap Get() { return m_Wrapper.m_Pause; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(PauseActions set) { return set.Get(); }
+        public void SetCallbacks(IPauseActions instance)
+        {
+            if (m_Wrapper.m_PauseActionsCallbackInterface != null)
+            {
+                @PauseandUnpause.started -= m_Wrapper.m_PauseActionsCallbackInterface.OnPauseandUnpause;
+                @PauseandUnpause.performed -= m_Wrapper.m_PauseActionsCallbackInterface.OnPauseandUnpause;
+                @PauseandUnpause.canceled -= m_Wrapper.m_PauseActionsCallbackInterface.OnPauseandUnpause;
+            }
+            m_Wrapper.m_PauseActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @PauseandUnpause.started += instance.OnPauseandUnpause;
+                @PauseandUnpause.performed += instance.OnPauseandUnpause;
+                @PauseandUnpause.canceled += instance.OnPauseandUnpause;
+            }
+        }
+    }
+    public PauseActions @Pause => new PauseActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     public InputControlScheme KeyboardMouseScheme
     {
@@ -1060,6 +1162,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         void OnSecondaryAttack(InputAction.CallbackContext context);
         void OnUtilityAttack(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
@@ -1073,5 +1176,9 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         void OnRightClick(InputAction.CallbackContext context);
         void OnTrackedDevicePosition(InputAction.CallbackContext context);
         void OnTrackedDeviceOrientation(InputAction.CallbackContext context);
+    }
+    public interface IPauseActions
+    {
+        void OnPauseandUnpause(InputAction.CallbackContext context);
     }
 }

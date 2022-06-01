@@ -107,7 +107,7 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        GetPathAfterPathFind(startPoint);
+        GetPathAfterPathFind(startPoint, endPoint);
     }
 
     public virtual void OnReachDestination()
@@ -187,8 +187,9 @@ public class EnemyController : MonoBehaviour
         pathPoints.Clear();
     }
 
-    void GetPathAfterPathFind(Vector2Int start)
+    void GetPathAfterPathFind(Vector2Int start, Vector2Int end)
     {
+        /*
         int pathPointCount = 1;
 
         pathPoints.Add(openPoints[0]);
@@ -219,8 +220,8 @@ public class EnemyController : MonoBehaviour
                 pathPointCount++;
             }
         }
-
-        /*
+        */
+        
         pathPoints.Add(openPoints[0]);
         
         while(true)
@@ -231,11 +232,12 @@ public class EnemyController : MonoBehaviour
             
             //Else add parentpoint to pathlist to be iterated upon next cycle
             pathPoints.Add(pathPoints[pathPoints.Count - 1].parentPoint);
+
+            if (!Physics.Raycast(transform.position, (getWorldPosFromPointPos(end) + Vector3.up * transform.position.y) - transform.position, Vector3.Distance(getWorldPosFromPointPos(end), transform.position), _obstacles))
+                Debug.Log("Can see end");
         }
 
         pathPoints.Reverse();
-        */
-        
     }
 
     //Get points adjecent to inserted point and retreive their values
@@ -324,7 +326,10 @@ public class EnemyController : MonoBehaviour
         evaluatePoint = openPoints.Find(p => p.position == point.position);
         if (evaluatePoint != null)
             return false;
-
+        /*
+        if (Physics.CheckBox(getWorldPosFromPointPos(point.position), (Vector3.one * _levelGenerator._sizeModifier) / 2, transform.rotation, _obstacles))
+            return false;
+        */
         //Check if point is available 
         if (_levelGenerator.getMap()[point.position.x, point.position.y] == '#')
             return false;

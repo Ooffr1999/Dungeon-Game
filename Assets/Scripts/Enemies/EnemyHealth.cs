@@ -6,6 +6,9 @@ public class EnemyHealth : MonoBehaviour
 {
     public int maxHealth;
 
+    [Space(5)]
+    public int powerReward;
+
     [HideInInspector]
     public int currentHealth;
 
@@ -43,10 +46,24 @@ public class EnemyHealth : MonoBehaviour
     public void RemoveHealth(int healthToRemove)
     {
         currentHealth -= healthToRemove;
-        
+
         if (currentHealth <= 0)
-            Destroy(this.gameObject);
+            OnDeath();
 
         healthBar.UpdateBothBars(currentHealth);
+    }
+
+    public virtual void OnDeath()
+    {
+        currentHealth = maxHealth;
+        healthBar.UpdateBothBars(currentHealth);
+        this.gameObject.SetActive(false);
+
+        RewardPlayer();
+    }
+
+    public void RewardPlayer()
+    {
+        GameObject.Find("Player").GetComponent<Player_Level>().IncreasePower(powerReward);
     }
 }

@@ -39,6 +39,10 @@ public class Player_Interract : MonoBehaviour
                 case "Stairs":
                     ClimbDownDungeon(hit);
                     break;
+
+                case "MapChest":
+                    GetMapChest(hit);
+                    break;
             }
         }
     }
@@ -48,6 +52,12 @@ public class Player_Interract : MonoBehaviour
         hit.collider.gameObject.GetComponent<Container_Behaviour>().Open();
     }
 
+    void GetMapChest(RaycastHit hit)
+    {
+        Debug.Log("Open map chest");
+        hit.collider.gameObject.GetComponent<Map_Container_Behaviour>().Open();
+    }
+
     void OpenDoor(RaycastHit hit)
     {
         hit.collider.gameObject.GetComponent<DoorBehaviour>().Open();
@@ -55,7 +65,7 @@ public class Player_Interract : MonoBehaviour
 
     void ClimbDownDungeon(RaycastHit hit)
     {
-        LevelGen._instance.MakeLevel();
+        p_Items.OpenLevelUpMenu();
     }
     #endregion
 

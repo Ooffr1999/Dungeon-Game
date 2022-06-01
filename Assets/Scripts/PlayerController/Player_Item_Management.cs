@@ -2,12 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Player_Item_Management : MonoBehaviour
 {
     public float itemSearchRadius;
     public LayerMask itemLayer;
 
+    //Items and managing them
+    #region Items
     [Space(10)]
     public GameObject _mainItem;
     public GameObject _secondaryItem;
@@ -41,7 +44,13 @@ public class Player_Item_Management : MonoBehaviour
     GameObject itemSlot_Secondary;
     GameObject itemSlot_Armor;
     GameObject itemSlot_Utility;
+    #endregion
 
+    //Level up
+    [Space(10)]
+    public GameObject _levelUpMenu;
+
+    [Space(10)]
     public Animator _anim;
     public AnimatorOverrideController _overrideController;
     Player_InputAction input;
@@ -64,6 +73,8 @@ public class Player_Item_Management : MonoBehaviour
         itemSlot_Utility = iconHolder.transform.GetChild(3).gameObject;
     }
 
+    //Picking up items and stuff
+    #region Item Management
     public void RetreiveItem()
     {
         if (_mainItem != null && _secondaryItem != null && _utilityItem != null)
@@ -176,6 +187,9 @@ public class Player_Item_Management : MonoBehaviour
                 break;
 
             case 3:
+                if (_utilityItem == null)
+                    return;
+
                 //Drop Utility item
                 DropItem(_utilityItemData);
                 RemoveIcon(itemSlot_Utility);
@@ -192,22 +206,6 @@ public class Player_Item_Management : MonoBehaviour
         itemToDrop.GetComponent<Pickup>().item= item;
         Instantiate(itemToDrop, transform.position, transform.rotation);
     }
-
-    void SetIcon()
-    {
-        if (_mainItem != null)
-            itemSlot_Main.transform.GetChild(0).GetComponent<Image>().sprite = _mainItemData.icon;
-        if (_secondaryItem != null)
-            itemSlot_Secondary.transform.GetChild(0).GetComponent<Image>().sprite = _secondaryItemData.icon;
-        if (_utilityItem != null)
-            itemSlot_Utility.transform.GetChild(0).GetComponent<Image>().sprite = _utilityItemData.icon;
-    }
-
-    void RemoveIcon(GameObject itemSlot)
-    {
-        Image icon = itemSlot.transform.GetChild(0).GetComponent<Image>();
-        icon.sprite = null;
-    }
     
     void UnequipHands()
     {
@@ -223,7 +221,10 @@ public class Player_Item_Management : MonoBehaviour
             _leftWeapon.GetComponent<MeshRenderer>().material = null;
         }
     }
+    #endregion
 
+    //Attacking and resetting states
+    #region AnimatorStateSettings
     public void EnableMainAttack()
     {
         if (_mainItemComponent != null)
@@ -288,6 +289,38 @@ public class Player_Item_Management : MonoBehaviour
         DisableIsAttacking();
         _secondaryItemComponent.OnAttackOver();
     }
+    #endregion
+
+    //Setting ui and stuff
+    #region UI 
+    void SetIcon()
+    {
+        if (_mainItem != null)
+            itemSlot_Main.transform.GetChild(0).GetComponent<Image>().sprite = _mainItemData.icon;
+        if (_secondaryItem != null)
+            itemSlot_Secondary.transform.GetChild(0).GetComponent<Image>().sprite = _secondaryItemData.icon;
+        if (_utilityItem != null)
+            itemSlot_Utility.transform.GetChild(0).GetComponent<Image>().sprite = _utilityItemData.icon;
+    }
+
+    void RemoveIcon(GameObject itemSlot)
+    {
+        Image icon = itemSlot.transform.GetChild(0).GetComponent<Image>();
+        icon.sprite = null;
+    }
+
+    public void OpenLevelUpMenu()
+    {
+        Time.timeScale = 0;
+        _levelUpMenu.SetActive(true);
+    }
+
+    public void CloseLevelUpMenu()
+    {
+        Time.timeScale = 1;
+        _levelUpMenu.SetActive(false);
+    }
+    #endregion
 
     private void OnEnable()
     {

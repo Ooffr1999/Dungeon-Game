@@ -21,6 +21,9 @@ public class LevelGen : MonoBehaviour
     [Header("Stairs")]
     public GameObject stairs;
 
+    [Header("Map Chest")]
+    public GameObject mapChest;
+
     [HideInInspector]
     char[,] map;
 
@@ -49,21 +52,19 @@ public class LevelGen : MonoBehaviour
     private void Start()
     {
         InitPool();
-
         MakeLevel();
+
     }
 
-    void GetNewSeed()
+    public void GetNewSeed()
     {
         Random.InitState(System.Environment.TickCount);
         seed = Random.Range(-100000, 100000);
     }
 
-    void DrawLevelLayout()
+    public Texture2D DrawLevelLayout(bool drawPlayer)
     {
         map = MapGen.GetCatacombMap(size.x, size.y, seed);
-
-        //transform.localScale = new Vector3(map.GetLength(0), map.GetLength(1), 1);
 
         Texture2D mapTex = new Texture2D(map.GetLength(0), map.GetLength(1), TextureFormat.RGB24, true);
         mapTex.filterMode = FilterMode.Point;
@@ -76,15 +77,15 @@ public class LevelGen : MonoBehaviour
                 switch(map[x, y])
                 {
                     case '.':
-                        mapTex.SetPixel(x, y, Color.red);
+                        mapTex.SetPixel(x, y, Color.white);
                         break;
 
                     case '#':
-                        mapTex.SetPixel(x, y, Color.blue);
+                        mapTex.SetPixel(x, y, Color.gray);
                         break;
 
                     case 'D':
-                        mapTex.SetPixel(x, y, Color.cyan);
+                        mapTex.SetPixel(x, y, Color.black);
                         break;
 
                     case 'S':
@@ -104,11 +105,11 @@ public class LevelGen : MonoBehaviour
             }
         }
 
-
+        if (drawPlayer)
+            mapTex.SetPixel(getMapPos(player.transform.position).x, getMapPos(player.transform.position).y, Color.red);
 
         mapTex.Apply();
-
-        GetComponent<Renderer>().sharedMaterial.mainTexture = mapTex;
+        return mapTex;
     }
 
     void GenerateLevel()
@@ -241,19 +242,32 @@ public class LevelGen : MonoBehaviour
         Debug.Log("Placing " + chestAmount + " chests");
         for (int i = 0; i < chestAmount; i++)
         {
-            bool chestPlaced = false;
-            while (!chestPlaced)
+            while (true)
             {
                 Vector2Int pos = RoomEngine.getRandomMapPos(map);
                 int index = RoomEngine.MarchThroughMap(map, '.', pos.x, pos.y);
                 
                 if (index == 15)
                 {
-                    Debug.Log("Place chest");
                     _chestPool[i].SetActive(true);
                     _chestPool[i].transform.position = new Vector3(pos.x, 0, pos.y) * _sizeModifier;
-                    chestPlaced = true;
+                    break;
                 }
+            }
+        }
+
+        //Place Map chest
+        while(true)
+        {
+            Vector2Int pos = RoomEngine.getRandomMapPos(map);
+            int index = RoomEngine.MarchThroughMap(map, '.', pos.x, pos.y);
+
+            if (index == 15)
+            {
+                mapChest.SetActive(true);
+                //mapChest.transform.localScale = Vector3.one * _sizeModifier;
+                mapChest.transform.position = new Vector3(pos.x, 0, pos.y) * _sizeModifier;
+                break;
             }
         }
 
@@ -322,6 +336,7 @@ public class LevelGen : MonoBehaviour
         for (int i = 0; i < _doorPool.Count; i++)
         {
             _doorPool[i].transform.eulerAngles = Vector3.zero;
+            _doorPool[i].GetComponent<Collider>().enabled = true;
             _doorPool[i].SetActive(false);
         }
 
@@ -330,14 +345,15 @@ public class LevelGen : MonoBehaviour
             _chestPool[i].transform.eulerAngles = chest.transform.eulerAngles;
             _chestPool[i].GetComponent<Container_Behaviour>().ResetContainer();
         }
+
+        mapChest.GetComponent<Map_Container_Behaviour>().ResetContainer();
     }
     
     public void MakeLevel()
     {
+        MapAndCharacterBehaviour._instance.ClearMapTexture();
         ClearRoom();
-        DrawLevelLayout();
-        GenerateLevel();
-        GetNewSeed();
+        GenerateLevel();   
     }
     
     float EvaluateForWallPlacement(char[,] map, int x, int y, int poolIndex)
@@ -560,5 +576,11 @@ public class LevelGen : MonoBehaviour
     public char getMapSquareData(int x, int y)
     {
         return map[x, y];
+    }
+
+    public Vector2Int getMapPos(Vector3 pos)
+    {
+        return new Vector2Int(Mathf.FloorToInt(pos.x / _sizeModifier) + 1,
+                              Mathf.FloorToInt(pos.z / _sizeModifier));
     }
 }

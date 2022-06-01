@@ -7,23 +7,20 @@ public class Random_Wandering_Enemy : EnemyController
     public float attackDistance;
 
     public GameObject player;
-  
-    private IEnumerator Start()
-    {
-        yield return new WaitForSeconds(.1f);
 
-        Move(getMapPos(), GetRandomDestination());
+    private void Start()
+    {
+        Move(getMapPos(), getMapPos(player.transform.position));
     }
-    
+
     private void FixedUpdate()
     {
-        
+        //UpdatePath(transform.position, player.transform.position);
     }
 
     public override void OnReachDestination()
     {
-        if (Vector3.Distance(transform.position, player.gameObject.transform.position) > 1)
-            Move(getMapPos(), GetRandomDestination());
+        
     }
     
 
