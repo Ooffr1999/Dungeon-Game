@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8930497783751970872}
   - component: {fileID: 8930497783749089734}
   - component: {fileID: 8930497783749750906}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: SM_Prop_Chest_02_Lid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 8930497783749782622}
   - component: {fileID: 8930497783752146885}
   - component: {fileID: 1762763308077516705}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Map_Chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}

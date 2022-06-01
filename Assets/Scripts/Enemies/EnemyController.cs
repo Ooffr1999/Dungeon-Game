@@ -6,393 +6,236 @@ using System.Linq;
 
 public class EnemyController : MonoBehaviour
 {
-    public float _MoveSpeed;
-    public LayerMask _obstacles;
+    public float _moveSpeed;
 
-    List<Points> openPoints = new List<Points>();
-    List<Points> closedPoints = new List<Points>();
-    List<Points> pathPoints = new List<Points>();
+    public Transform player;
 
-    [HideInInspector]
-    public LevelGen _levelGenerator;
+    PathNode[,] navMesh;
+    public List<PathNode> openNodes = new List<PathNode>();
+    public List<PathNode> path = new List<PathNode>();
 
-    [HideInInspector]
-    public bool isMoving;
-
-    Vector3 destination;
-    
-    private void Start()
+    private IEnumerator Start()
     {
-        _levelGenerator = LevelGen._instance;
-    }
+        yield return new WaitForSeconds(1);
 
-    #region PathFinding
-    public void Move(Vector2Int startPoint, Vector2Int endPoint)
-    {
-        /*
-        if (isMoving)
-            return;
-        */
-
-        GetPath(startPoint, endPoint);
-
-        if (pathPoints.Count < 1)
-            return;
-
-        StartCoroutine(Move_Routine(startPoint, endPoint));
-    }
-
-    IEnumerator Move_Routine(Vector2Int start, Vector2Int end)
-    {
-        Debug.Log("Started pathfinding");
-
-        int pathIterator = 0;
-
-        isMoving = true;
+        GetNavMesh();
 
         while (true)
         {
-            Vector3 translatedPosition = getWorldPosFromPointPos(pathPoints[pathIterator].position);
-            translatedPosition.y = transform.position.y;
+            yield return new WaitForSeconds(.1f);
 
-            transform.position = Vector3.MoveTowards(transform.position, translatedPosition, _MoveSpeed * Time.deltaTime);
-
-            if (Vector3.Distance(transform.position, translatedPosition) < 1f)
-            {
-                if (pathPoints[pathIterator].position == end)
-                    break;
-                else pathIterator++;
-            }
-
-            yield return new WaitForEndOfFrame();
-        }
-
-        isMoving = false;
-
-        Debug.Log("On end");
-        OnReachDestination();
-    }
-
-    public void UpdatePath(Vector3 start, Vector3 end)
-    {
-        if (isMoving)
-        GetPath(getMapPos(start), getMapPos(end));
-    }
-
-    public void Stop()
-    {
-        StopAllCoroutines();
-        isMoving = false;
-    }
-
-    void GetPath(Vector2Int startPoint, Vector2Int endPoint)
-    {
-        ClearPathFinding();
-
-        openPoints.Clear();
-        openPoints.Add(getPoint(startPoint, startPoint, endPoint));
-
-        while (true)
-        {
-            if (openPoints[0].position == endPoint)
-            {
-                Debug.Log("Got to the end");
+            if (IncrementPathFinding(transform.position, player.transform.position))
                 break;
-            }
+        }
 
-            if (!IteratePathFinding(startPoint, endPoint))
+        GetFoundPath(transform.position, player.transform.position);
+
+        Debug.Log("Found end");
+    }
+
+    //Retreive the Navmesh Data from current NavMeshGeneration object
+    public void GetNavMesh()
+    {
+        navMesh = FindObjectOfType<NavMeshGeneration>().navMesh;
+    }
+
+    public bool IncrementPathFinding(Vector3 start, Vector3 end)
+    {
+        List<PathNode> openPoints = new List<PathNode>();
+
+        for (int y = 0; y < navMesh.GetLength(1); y++)
+        {
+            for (int x = 0; x < navMesh.GetLength(0); x++)
             {
-                Debug.LogError("Broke pathfinding loop");
-                break;
+                if (!navMesh[x, y].isChecked && navMesh[x, y].isOpen)
+                    openPoints.Add(navMesh[x, y]);
             }
         }
 
-        GetPathAfterPathFind(startPoint, endPoint);
-    }
-
-    public virtual void OnReachDestination()
-    {
-        Debug.Log("On end");
-    }
-
-    public Vector2Int getMapPos()
-    {
-        return new Vector2Int(Mathf.FloorToInt(transform.position.x / _levelGenerator._sizeModifier) + 1, 
-                              Mathf.FloorToInt(transform.position.z / _levelGenerator._sizeModifier));
-    }
-
-    public Vector2Int getMapPos(Vector3 pos)
-    {
-        return new Vector2Int(Mathf.FloorToInt(pos.x / _levelGenerator._sizeModifier) + 1,
-                              Mathf.FloorToInt(pos.z / _levelGenerator._sizeModifier));
-    }
-
-    bool IteratePathFinding(Vector2Int startPoint, Vector2Int endPoint)
-    {
-        //Check if endpoint is on valid squares
-        #region Verifying space
-        if (_levelGenerator.getMapSquareData(endPoint) == '#')
+        if (openPoints.Count == 0)
         {
-            Debug.LogError("Pathfinding endpoint was not at a viable space on the map");
+            //SetPathNode(GetPathNode(), start, end);
+            GetPathNode().isOpen = true;
             return false;
         }
-        if (_levelGenerator.getMapSquareData(endPoint) == '\0')
-        {
-            Debug.LogError("Pathfinding endpoint was not at a viable space on the map");
-            return false;
-        }
-        
-        //Check if endpoint is on the map
-        if (endPoint.x > _levelGenerator.getMap().GetLength(0) - 1 || 
-            endPoint.x < 0 || 
-            endPoint.y > _levelGenerator.getMap().GetLength(1) - 1 ||
-            endPoint.y < 0)
-        {
-            Debug.LogError("Pathfinding endpoint was not on the map");
-            return false;
-        }
-        #endregion
 
-        List<Points> newOpenPoints = new List<Points>();
-
-        Points[] adjecentPoints = getAdjacentPoints(_levelGenerator.getMap(),
-                                                    openPoints[0].position.x,
-                                                    openPoints[0].position.y,
-                                                    startPoint,
-                                                    endPoint,
-                                                    openPoints[0]);
-
-        for (int i = 0; i < adjecentPoints.Length; i++)
-        {
-            if (adjecentPoints[i] == null)
-                continue;
-
-            if (evaluatePoint(adjecentPoints[i]))
-                newOpenPoints.Add(adjecentPoints[i]);
-        }
-
-        closedPoints.Add(openPoints[0]);
-        openPoints.Remove(openPoints[0]);
-
-        openPoints.AddRange(newOpenPoints);
         openPoints.Sort((p1, p2) => p1.F.CompareTo(p2.F));
+        //openPoints.Reverse();
+
+        PathNode[] neighbourNodes = getNeighboursofIndex(openPoints[0].index.x, openPoints[0].index.y);
+
+        for (int i = 0; i < neighbourNodes.Length; i++)
+        {
+            if (evaluatePathNode(neighbourNodes[i]))
+            {
+                neighbourNodes[i] = SetPathNode(neighbourNodes[i], start, end, openPoints[0]);
+                neighbourNodes[i].isOpen = true;
+            }
+        }
+
+        openPoints[0].isChecked = true;
+        openPoints[0].isOpen = false;
+        
+        openNodes = openPoints;
+        
+        if (openPoints[0].position == GetPathNode(end).position)
+            return true;
+
+        return false;
+    }
+
+    public void GetFoundPath(Vector3 start, Vector3 end)
+    {
+        path.Add(GetPathNode(end));
+
+        while(true)
+        {
+            path.Add(path[path.Count - 1].parent);
+            
+            if (path[path.Count - 1].position == start)
+                break;
+        }
+    }
+
+    public PathNode[] getNeighboursofIndex(int index_X, int index_Y)
+    {
+        PathNode[] neighbours = new PathNode[4];
+
+        if (index_X + 1 < navMesh.GetLength(0) + 1)
+            neighbours[0] = navMesh[index_X + 1, index_Y];
+        if (index_Y - 1 > -1)
+            neighbours[1] = navMesh[index_X, index_Y - 1];
+        if (index_X - 1 > -1)
+            neighbours[2] = navMesh[index_X - 1, index_Y];
+        if (index_Y + 1 < navMesh.GetLength(1) + 1)
+            neighbours[3] = navMesh[index_X, index_Y + 1];
+
+        return neighbours;
+    }
+
+    public bool evaluatePathNode(PathNode node)
+    {
+        if (node.isStatic)
+            return false;
+
+        if (!node.isWalkable)
+            return false;
+
+        if (node.isChecked && !node.isOpen)
+            return false;
 
         return true;
     }
 
-    void ClearPathFinding()
+    //Find path after tracking
+    public 
+
+    //Gets this transforms path node
+    PathNode GetPathNode()
     {
-        openPoints.Clear();
-        closedPoints.Clear();
-        pathPoints.Clear();
-    }
-
-    void GetPathAfterPathFind(Vector2Int start, Vector2Int end)
-    {
-        /*
-        int pathPointCount = 1;
-
-        pathPoints.Add(openPoints[0]);
-        pathPoints.Add(openPoints[0].parentPoint);
-
-        while(true)
-        {
-            Vector3 currentPosition = getWorldPosFromPointPos(pathPoints[pathPointCount - 1].position);
-            currentPosition.y = transform.position.y;
-
-            Vector3 positionToCheck = getWorldPosFromPointPos(pathPoints[pathPointCount].position);
-            positionToCheck.y = transform.position.y;
-
-            RaycastHit hit;
-
-            if (pathPoints[pathPointCount].position == start)
-            {
-                pathPoints.Add(pathPoints[pathPointCount]);
-                pathPoints.Reverse();
-                break;
-            }
-            
-            if (!Physics.Raycast(currentPosition, positionToCheck - currentPosition, out hit, Vector3.Distance(currentPosition, positionToCheck), _obstacles))
-                pathPoints[pathPointCount] = pathPoints[pathPointCount].parentPoint;
-            else
-            {
-                pathPoints.Add(pathPoints[pathPointCount]);
-                pathPointCount++;
-            }
-        }
-        */
-        
-        pathPoints.Add(openPoints[0]);
-        
-        while(true)
-        {     
-            //If the startpoint is found
-            if (pathPoints[pathPoints.Count - 1].parentPoint == null)
-                break;
-            
-            //Else add parentpoint to pathlist to be iterated upon next cycle
-            pathPoints.Add(pathPoints[pathPoints.Count - 1].parentPoint);
-
-            if (!Physics.Raycast(transform.position, (getWorldPosFromPointPos(end) + Vector3.up * transform.position.y) - transform.position, Vector3.Distance(getWorldPosFromPointPos(end), transform.position), _obstacles))
-                Debug.Log("Can see end");
-        }
-
-        pathPoints.Reverse();
-    }
-
-    //Get points adjecent to inserted point and retreive their values
-    Points[] getAdjacentPoints(char[,] map, int x, int y, Vector2Int startPos, Vector2Int endPos, Points parentPoint)
-    {
-        if (x > map.GetLength(0) - 1 || x < 0 || y > map.GetLength(1) - 1 || y < 0)
-        {
-            Debug.LogError("MapPosition you tried to get points from doesn't exist");
+        if (navMesh == null)
             return null;
-        }
 
-        Points[] adjacentPoints = new Points[8];
+        Vector2Int index = Vector2Int.one * 32000;
 
-        if (x + 1 < map.GetLength(0) - 1)
-            adjacentPoints[0] = getPoint(new Vector2Int(x + 1, y), startPos, endPos, parentPoint);     //Right
-        if (y - 1 > -1)
-            adjacentPoints[1] = getPoint(new Vector2Int(x, y - 1), startPos, endPos, parentPoint);     //Down
-        if (x - 1 > -1)
-            adjacentPoints[2] = getPoint(new Vector2Int(x - 1, y), startPos, endPos, parentPoint);     //Left
-        if (y + 1 < map.GetLength(1) - 1)
-            adjacentPoints[3] = getPoint(new Vector2Int(x, y + 1), startPos, endPos, parentPoint);     //Up
-
-        //Adding diagonals because Svein came with a good idea
-        /*
-        adjacentPoints[4] = getPoint(new Vector2Int(x + 1, y + 1), endPos, iteration, parentPoint);     //Right, up
-        adjacentPoints[5] = getPoint(new Vector2Int(x + 1, y - 1), endPos, iteration, parentPoint);     //Right, down
-        adjacentPoints[6] = getPoint(new Vector2Int(x - 1, y - 1), endPos, iteration, parentPoint);     //Left, down,
-        adjacentPoints[7] = getPoint(new Vector2Int(x - 1, y + 1), endPos, iteration, parentPoint);     //Left up
-        */
-
-        return adjacentPoints;
-    }
-
-    Points getPoint(Vector2Int pointPos, Vector2Int startPos, Vector2Int endPos)
-    {
-        Points current = new Points();
-
-        current.position = pointPos;
-
-        int distX, distY;
-
-        distX = Math.Abs(pointPos.x - endPos.x);
-        distY = Math.Abs(pointPos.y - endPos.y);
-
-        //current.H = Vector2.Distance(pointPos, endPos);
-
-        current.H = distX + distY;
-        current.G = Vector2.Distance(startPos, endPos);
-        //current.G = iteration;
-        current.F = current.H + current.G;
-
-        return current;
-    }
-    Points getPoint(Vector2Int pointPos, Vector2Int startPos, Vector2Int endPos, Points parentPoint)
-    {
-        Points current = new Points();
-
-        current.position = pointPos;
-
-        int distX, distY;
-
-        distX = Math.Abs(pointPos.x - endPos.x);
-        distY = Math.Abs(pointPos.y - endPos.y);
-
-        //current.H = Vector2.Distance(pointPos, endPos);
-
-        current.H = distX + distY;
-        current.G = Vector2.Distance(startPos, endPos);
-        //current.G = iteration;
-        current.F = current.H + current.G;
-        current.parentPoint = parentPoint;
-
-        return current;
-    }
-
-    bool evaluatePoint(Points point)
-    {
-        Points evaluatePoint = new Points();
-
-        //Check closed points for point
-        evaluatePoint = closedPoints.Find(p => p.position == point.position);
-        if (evaluatePoint != null)
-            return false;
-
-        //Check open points for point
-        evaluatePoint = openPoints.Find(p => p.position == point.position);
-        if (evaluatePoint != null)
-            return false;
-        /*
-        if (Physics.CheckBox(getWorldPosFromPointPos(point.position), (Vector3.one * _levelGenerator._sizeModifier) / 2, transform.rotation, _obstacles))
-            return false;
-        */
-        //Check if point is available 
-        if (_levelGenerator.getMap()[point.position.x, point.position.y] == '#')
-            return false;
-        if (_levelGenerator.getMap()[point.position.x, point.position.y] == '\0')
-            return false;
-
-        return true;
-    }
-
-    Vector3 getWorldPosFromPointPos(Vector2Int pos)
-    {
-        return new Vector3(pos.x - 0.5f, 0, pos.y + 0.5f) * _levelGenerator._sizeModifier;
-    }
-    #endregion
-
-    #region Draw Paths
-    private void OnDrawGizmosSelected()
-    {
-        /*
-        Gizmos.color = Color.red;
-
-        for(int i = 0; i < openPoints.Count; i++)
+        for (int y = 0; y < navMesh.GetLength(1); y++)
         {
-            Vector3 center = getWorldPosFromPointPos(openPoints[i].position);
-            Gizmos.DrawCube(center, Vector3.one / 2);
+            for (int x = 0; x < navMesh.GetLength(0); x++)
+            {
+                if (navMesh[x, y] == null)
+                    continue;
+
+                if (index.x > navMesh.GetLength(0))
+                {
+                    index = new Vector2Int(x, y);
+                    continue;
+                }
+
+                if (Vector3.Distance(transform.position, navMesh[x, y].position) < Vector3.Distance(transform.position, navMesh[index.x, index.y].position))
+                    index = new Vector2Int(x, y);
+            }
         }
 
-        Gizmos.color = Color.blue;
+        return navMesh[index.x, index.y];
+    }
 
-        for (int i = 0; i < closedPoints.Count; i++)
+    //Gets pathnode of assigned transform
+    PathNode GetPathNode(Vector3 target)
+    {
+        if (navMesh == null)
+            return null;
+
+        Vector2Int index = Vector2Int.one * 32000;
+
+        for (int y = 0; y < navMesh.GetLength(1); y++)
         {
-            Vector3 center = getWorldPosFromPointPos(closedPoints[i].position);
-            Gizmos.DrawCube(center, Vector3.one / 2);
+            for (int x = 0; x < navMesh.GetLength(0); x++)
+            {
+                if (navMesh[x, y] == null)
+                    continue;
+
+                if (index.x > navMesh.GetLength(0))
+                {
+                    index = new Vector2Int(x, y);
+                    continue;
+                }
+
+                if (Vector3.Distance(target, navMesh[x, y].position) < Vector3.Distance(target, navMesh[index.x, index.y].position))
+                    index = new Vector2Int(x, y);
+            }
         }
-        */
+
         Gizmos.color = Color.green;
 
-        if (pathPoints.Count < 1)
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            if (i + 1 > path.Count - 1)
+                break;
+
+            Gizmos.DrawLine(path[i].position, path[i + 1].position);
+        }
+
+        return navMesh[index.x, index.y];
+    }
+
+    //Calculate the necessary values of the pathnode
+    PathNode SetPathNode(PathNode node, Vector3 start, Vector3 end)
+    {
+        node.H = Vector3.Distance(node.position, start);
+        node.G = Vector3.Distance(node.position, end);
+        node.F = node.H + node.G;
+
+        return node;
+    }
+
+    PathNode SetPathNode(PathNode node, Vector3 start, Vector3 end, PathNode parent)
+    {
+        node.H = Vector3.Distance(node.position, end);
+        node.G = Vector3.Distance(node.position, start);
+        node.F = node.H + node.G;
+
+        node.parent = parent;
+
+        return node;
+    }
+
+    //Draw path
+    private void OnDrawGizmosSelected()
+    {
+        if (navMesh == null)
             return;
 
-        for(int i = 0; i < pathPoints.Count; i++)
-        {
-            Vector3 center = getWorldPosFromPointPos(pathPoints[i].position);
-            Gizmos.DrawCube(center, Vector3.one / 2);
+        GetNavMesh();
 
-            if (i > 0)
-                Gizmos.DrawLine(getWorldPosFromPointPos(pathPoints[i - 1].position), getWorldPosFromPointPos(pathPoints[i].position));
+        Gizmos.color = Color.red;
+
+        for (int y = 0; y < navMesh.GetLength(1); y++)
+        {
+            for (int x = 0; x < navMesh.GetLength(0); x++)
+            {
+                if (!navMesh[x, y].isChecked && navMesh[x, y].isOpen)
+                    Gizmos.DrawCube(navMesh[x, y].position, Vector3.one * 1.5f);
+            }
         }
     }
-    #endregion
-}
-
-[System.Serializable]
-public class Points
-{
-    //Distance between target
-    public int H;
-    //Iteration
-    public float G;
-    //H + G
-    public float F;
-    //Current index position
-    public Vector2Int position;
-    //Parent index position
-    public Points parentPoint;
 }

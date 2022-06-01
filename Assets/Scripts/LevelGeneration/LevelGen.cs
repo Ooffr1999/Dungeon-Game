@@ -250,7 +250,7 @@ public class LevelGen : MonoBehaviour
                 if (index == 15)
                 {
                     _chestPool[i].SetActive(true);
-                    _chestPool[i].transform.position = new Vector3(pos.x, 0, pos.y) * _sizeModifier;
+                    _chestPool[i].transform.position = new Vector3(pos.x - 0.5f, 0, pos.y + 0.5f) * _sizeModifier;
                     break;
                 }
             }
@@ -266,7 +266,7 @@ public class LevelGen : MonoBehaviour
             {
                 mapChest.SetActive(true);
                 //mapChest.transform.localScale = Vector3.one * _sizeModifier;
-                mapChest.transform.position = new Vector3(pos.x, 0, pos.y) * _sizeModifier;
+                mapChest.transform.position = new Vector3(pos.x - 0.5f, 0, pos.y + 0.5f) * _sizeModifier;
                 break;
             }
         }

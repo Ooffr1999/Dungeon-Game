@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7780221941780331077}
   - component: {fileID: 7568254228642570851}
   - component: {fileID: 7780221941782631763}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Catacomb_Wooden_Chest
   m_TagString: Container
   m_Icon: {fileID: 0}
@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 7780221941782235459}
   - component: {fileID: 7780221941781373569}
   - component: {fileID: 7780221941780362597}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Catacomb_Wooden_Chest_Lid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
