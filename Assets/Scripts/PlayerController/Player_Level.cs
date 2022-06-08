@@ -54,6 +54,7 @@ public class Player_Level : MonoBehaviour
     public void IncreasePower(int power)
     {
         currentPower += power;
+        SetUIScoreValues();
     }
 
     public void SetUIScoreValues()

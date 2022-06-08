@@ -139,7 +139,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""10018d0d-be76-492b-9ab7-3e82b6f0b47c"",
-                    ""path"": ""<Keyboard>/r"",
+                    ""path"": ""<Keyboard>/f"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
@@ -721,6 +721,14 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Reset"",
+                    ""type"": ""Button"",
+                    ""id"": ""c8e330b9-0d70-4fb8-91c9-bc70499e3c03"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -732,6 +740,17 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Pause and Unpause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9d725989-2814-44f9-9cff-b4a3e7979d44"",
+                    ""path"": ""<Keyboard>/backspace"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reset"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -827,6 +846,7 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
         // Pause
         m_Pause = asset.FindActionMap("Pause", throwIfNotFound: true);
         m_Pause_PauseandUnpause = m_Pause.FindAction("Pause and Unpause", throwIfNotFound: true);
+        m_Pause_Reset = m_Pause.FindAction("Reset", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1079,11 +1099,13 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
     private readonly InputActionMap m_Pause;
     private IPauseActions m_PauseActionsCallbackInterface;
     private readonly InputAction m_Pause_PauseandUnpause;
+    private readonly InputAction m_Pause_Reset;
     public struct PauseActions
     {
         private @Player_InputAction m_Wrapper;
         public PauseActions(@Player_InputAction wrapper) { m_Wrapper = wrapper; }
         public InputAction @PauseandUnpause => m_Wrapper.m_Pause_PauseandUnpause;
+        public InputAction @Reset => m_Wrapper.m_Pause_Reset;
         public InputActionMap Get() { return m_Wrapper.m_Pause; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1096,6 +1118,9 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 @PauseandUnpause.started -= m_Wrapper.m_PauseActionsCallbackInterface.OnPauseandUnpause;
                 @PauseandUnpause.performed -= m_Wrapper.m_PauseActionsCallbackInterface.OnPauseandUnpause;
                 @PauseandUnpause.canceled -= m_Wrapper.m_PauseActionsCallbackInterface.OnPauseandUnpause;
+                @Reset.started -= m_Wrapper.m_PauseActionsCallbackInterface.OnReset;
+                @Reset.performed -= m_Wrapper.m_PauseActionsCallbackInterface.OnReset;
+                @Reset.canceled -= m_Wrapper.m_PauseActionsCallbackInterface.OnReset;
             }
             m_Wrapper.m_PauseActionsCallbackInterface = instance;
             if (instance != null)
@@ -1103,6 +1128,9 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
                 @PauseandUnpause.started += instance.OnPauseandUnpause;
                 @PauseandUnpause.performed += instance.OnPauseandUnpause;
                 @PauseandUnpause.canceled += instance.OnPauseandUnpause;
+                @Reset.started += instance.OnReset;
+                @Reset.performed += instance.OnReset;
+                @Reset.canceled += instance.OnReset;
             }
         }
     }
@@ -1180,5 +1208,6 @@ public class @Player_InputAction : IInputActionCollection, IDisposable
     public interface IPauseActions
     {
         void OnPauseandUnpause(InputAction.CallbackContext context);
+        void OnReset(InputAction.CallbackContext context);
     }
 }

@@ -39,8 +39,7 @@ public class NavMeshGeneration : MonoBehaviour
                 RaycastHit hit;
                 
                 navMesh[x, y] = new PathNode();
-                
-                Debug.Log("Checking for obstacle");
+
                 if (!Physics.Raycast(rayCastPos, Vector3.down, out hit, Mathf.Infinity))
                 {
                     navMesh[x, y].isStatic = true;

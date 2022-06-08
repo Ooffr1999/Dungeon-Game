@@ -86,7 +86,7 @@ public static class MapGen
         spineRoomDim = new Vector2Int(Random.Range(10, 15), Random.Range(25, 30));
 
         roomList.Add(RoomEngine.CreateRoom(map, spineRoomPos, spineRoomDim));  
-
+        
         for (int i = 0; i < 4; i++)
         {
             Vector2Int randPos = new Vector2Int(Random.Range(1, 20), Random.Range(2, 20) * i + 1);
@@ -108,26 +108,89 @@ public static class MapGen
             
             if (room != null)
                 roomList.Add(room);
-
+            
             if (Random.Range(0, 101) > 75)
                 RoomEngine.GenerateWalls(map);
-
+            
             int count = RoomEngine.CountTiles(map);
             if (count > 2300)
                 break;
         }  
-
+        
         for (int i = 0; i < roomList.Count - 1; i++)
         {
             RoomEngine.GenerateHallWay(map, Random.Range(2, 4), roomList[i].origin, roomList[i+1].origin);
         }
 
         RoomEngine.GenerateHallWay(map, Random.Range(2, 4), roomList[roomList.Count - 1].origin, roomList[0].origin);
-
+        
         RoomEngine.GenerateWalls(map);
         RoomEngine.CleanFloorHoles(map);
-
+        
         RoomEngine.PlaceDoors(map);
+        
+        RoomEngine.PlaceStartOrEndPoint(map, 'S');
+        RoomEngine.PlaceStartOrEndPoint(map, 'E');
+        
+        return map;
+    }
+
+    public static char[,] GetNewCatacombMap(int width, int height, int seed)
+    {
+        List<Room> roomList = new List<Room>();
+
+        Random.InitState(seed);
+
+        char[,] map = new char[width, height];
+
+        roomList.Add(RoomEngine.CreateRoom(map, new Vector2Int(20, 20), new Vector2Int(10, 10)));
+
+        //RoomEngine.GenerateWalls(map);
+
+        int rooms = Random.Range(2, 5);
+
+        for(int i = 0; i < rooms; i++)
+        {
+            Vector2Int pos;
+            Vector2Int size;
+
+            while(true)
+            {
+                pos = new Vector2Int(Random.Range(0, map.GetLength(0)), Random.Range(0, map.GetLength(1)));
+                size = new Vector2Int(Random.Range(4, 9), Random.Range(4, 9));
+
+                if (map[pos.x, pos.y] == '\0')
+                    break;
+            }
+
+            if (RoomEngine.CheckSpace(map, pos, size))
+                roomList.Add(RoomEngine.CreateRoom(map, pos, size));
+        }
+
+        for (int i = 1; i < roomList.Count; i++)
+        {
+            RoomEngine.GenerateHallWay(map, Random.Range(1, 2), roomList[i - 1].center, roomList[i].center);
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            Vector2Int pos;
+            Vector2Int size;
+
+            while (true)
+            {
+                pos = new Vector2Int(Random.Range(0, map.GetLength(0)), Random.Range(0, map.GetLength(1)));
+                size = new Vector2Int(Random.Range(4, 9), Random.Range(4, 9));
+
+                if (map[pos.x, pos.y] == '\0')
+                    break;
+            }
+
+            if (RoomEngine.CheckSpace(map, pos, size))
+                roomList.Add(RoomEngine.CreateRoom(map, pos, size));
+        }
+
+        RoomEngine.CleanFloorHoles(map);
 
         RoomEngine.PlaceStartOrEndPoint(map, 'S');
         RoomEngine.PlaceStartOrEndPoint(map, 'E');

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RoomGen;
+using Pathfinding;
 
 public class LevelGen : MonoBehaviour
 {
@@ -53,18 +54,20 @@ public class LevelGen : MonoBehaviour
     {
         InitPool();
         MakeLevel();
-
     }
 
-    public void GetNewSeed()
+    public static int GetNewSeed()
     {
         Random.InitState(System.Environment.TickCount);
-        seed = Random.Range(-100000, 100000);
+        int seed = Random.Range(-100000, 100000);
+
+        return seed;
     }
 
-    public Texture2D DrawLevelLayout(bool drawPlayer)
+    #region Draw Map
+    public static Texture2D DrawLevelLayout(int seed)
     {
-        map = MapGen.GetCatacombMap(size.x, size.y, seed);
+        char[,] map = MapGen.GetCatacombMap(40, 40, seed);
 
         Texture2D mapTex = new Texture2D(map.GetLength(0), map.GetLength(1), TextureFormat.RGB24, true);
         mapTex.filterMode = FilterMode.Point;
@@ -75,6 +78,43 @@ public class LevelGen : MonoBehaviour
             for (int x = 0; x < map.GetLength(0); x++)
             {
                 switch(map[x, y])
+                {
+                    case '.':
+                        mapTex.SetPixel(x, y, Color.white);
+                        break;
+
+                    case '#':
+                        mapTex.SetPixel(x, y, Color.gray);
+                        break;
+
+                    case 'D':
+                        mapTex.SetPixel(x, y, Color.black);
+                        break;
+
+                    default:
+                        mapTex.SetPixel(x, y, Color.black);
+                        break;
+                }
+            }
+        }
+
+        mapTex.Apply();
+        return mapTex;
+    }
+
+    public Texture2D DrawLevelLayout(Transform target)
+    {
+        map = MapGen.GetCatacombMap(size.x, size.y, seed);
+
+        Texture2D mapTex = new Texture2D(map.GetLength(0), map.GetLength(1), TextureFormat.RGB24, true);
+        mapTex.filterMode = FilterMode.Point;
+        mapTex.wrapMode = TextureWrapMode.Clamp;
+
+        for (int y = 0; y < map.GetLength(1); y++)
+        {
+            for (int x = 0; x < map.GetLength(0); x++)
+            {
+                switch (map[x, y])
                 {
                     case '.':
                         mapTex.SetPixel(x, y, Color.white);
@@ -105,12 +145,12 @@ public class LevelGen : MonoBehaviour
             }
         }
 
-        if (drawPlayer)
-            mapTex.SetPixel(getMapPos(player.transform.position).x, getMapPos(player.transform.position).y, Color.red);
+        mapTex.SetPixel(getMapPos(target.position).x, getMapPos(target.position).y, Color.red);
 
         mapTex.Apply();
         return mapTex;
     }
+    #endregion
 
     void GenerateLevel()
     {
@@ -351,9 +391,18 @@ public class LevelGen : MonoBehaviour
     
     public void MakeLevel()
     {
+        StartCoroutine(MakeLevelRoutine());
+    }
+
+    IEnumerator MakeLevelRoutine()
+    {
         MapAndCharacterBehaviour._instance.ClearMapTexture();
         ClearRoom();
-        GenerateLevel();   
+        GenerateLevel();
+
+        yield return new WaitForEndOfFrame();
+
+        AstarPath.active.Scan();
     }
     
     float EvaluateForWallPlacement(char[,] map, int x, int y, int poolIndex)

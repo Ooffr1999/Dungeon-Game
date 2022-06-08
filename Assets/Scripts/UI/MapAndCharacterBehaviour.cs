@@ -14,6 +14,7 @@ public class MapAndCharacterBehaviour : MonoBehaviour
     public GameObject _mapScreen;
     public Image _mapTex;
     public TextMeshProUGUI _noMapTex;
+    public Transform _player;
 
     [Header("Character Screen")]
     public GameObject _characterScreen;
@@ -46,7 +47,7 @@ public class MapAndCharacterBehaviour : MonoBehaviour
 
     void DrawLayout()
     {
-        SetMapTexture(LevelGen._instance.DrawLevelLayout(true));
+        SetMapTexture(LevelGen._instance.DrawLevelLayout(_player));
     }
 
     public void InitMap()

@@ -126,7 +126,7 @@
                 {
                     "name": "",
                     "id": "10018d0d-be76-492b-9ab7-3e82b6f0b47c",
-                    "path": "<Keyboard>/r",
+                    "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -708,6 +708,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Reset",
+                    "type": "Button",
+                    "id": "c8e330b9-0d70-4fb8-91c9-bc70499e3c03",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -719,6 +727,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Pause and Unpause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d725989-2814-44f9-9cff-b4a3e7979d44",
+                    "path": "<Keyboard>/backspace",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Reset",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

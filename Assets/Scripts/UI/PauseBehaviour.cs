@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PauseBehaviour : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class PauseBehaviour : MonoBehaviour
         input = new Player_InputAction();
 
         input.Pause.PauseandUnpause.performed += ctx => OnPause();
+        input.Pause.Reset.performed += ctx => Reset();
     }
 
     void OnPause()
@@ -40,6 +42,11 @@ public class PauseBehaviour : MonoBehaviour
                 _isPaused = false;
                 break;
         }
+    }
+
+    private void Reset()
+    {
+        SceneManager.LoadScene(0);
     }
 
     private void OnEnable()
